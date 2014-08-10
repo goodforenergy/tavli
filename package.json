@@ -1,0 +1,30 @@
+{
+  "name": "tavli",
+  "version": "1.0.0",
+  "description": "Tavil - Backgammon for 2014",
+  "private": false,
+  "author": "Helen Durrant",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goodforenergy/tavli"
+  },
+  "readmeFilename": "README.md",
+  "dependencies": {},
+  "devDependencies": {
+    "express": "^4.7.2",
+    "gulp": "^3.8.6",
+    "gulp-autoprefixer": "0.0.8",
+    "gulp-cached": "^1.0.1",
+    "gulp-changed": "^0.4.1",
+    "gulp-if": "^1.2.4",
+    "gulp-imagemin": "^0.6.2",
+    "gulp-jshint": "^1.8.4",
+    "gulp-minify-css": "^0.3.7",
+    "gulp-mocha": "^0.5.2",
+    "gulp-notify": "^1.4.1",
+    "gulp-sass": "^0.7.2",
+    "jshint-stylish": "^0.4.0",
+    "tiny-lr": "0.0.9",
+    "yargs": "^1.3.1"
+  }
+}
