@@ -1,4 +1,11 @@
-tavli
-=====
+# Tavli
 
-Modern backgammon
+Modern backgammon.
+
+## Running
+
+``` meteor ```
+
+## TODO
+
+* Friend Requests

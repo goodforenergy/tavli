@@ -1,0 +1,90 @@
+<head>
+  <title>Tavli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+  {{> page}}
+</body>
+
+<template name="page">
+	<div class="container">
+		<div class="page-header">
+			<h1>Tavli</h1>
+			<p class="lead">Modern backgammon.</p>
+		</div>
+		{{#if currentUser}}
+			{{> mainPage}}
+		{{else}}
+			{{> loginPage}}
+		{{/if}}
+	</div>
+</template>
+
+<template name="loginPage">
+	<div class="row">
+		<div class="sign-in">
+			{{> loginButtons}}
+		</div>
+	</div>
+</template>
+
+<template name="mainPage">
+	{{#if showAddFriendDialog}}
+		{{> addFriendDialog}}
+	{{/if}}
+
+	<div class="col-sm-12 col-md-8 col-lg-10">
+		{{> userInformation currentUser}}
+	</div>
+	<div class="col-sm-12 col-md-4 col-lg-2">
+		{{> loginButtons}}
+	</div>
+</template>
+
+<template name="userInformation">
+	<h2>Hey {{username}}, let's play a game.</h2>
+
+	<h3>Friends</h3>
+
+	<table class="table">
+		<tr>
+			<th>Username</th>
+			<th>Statistics</th>
+			<th>Current Game</th>
+		</tr>
+		{{#each friends}}
+			<tr>
+				<td>{{username}}</td>
+				<td>No games yet</td>
+				<td>New game?</td>
+			</tr>
+		{{/each}}
+	</table>
+	<button type="button" class="btn btn-primary js-add-friend">Add New Friend</button>
+</template>
+
+<template name="addFriendDialog">
+	<div class="modal fade in show">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Find A Friend</h4>
+				</div>
+				<div class="modal-body">
+					<ol>
+					{{#each users}}
+						<li>
+							<span>{{username}}</span>
+							<button type="button" class="btn btn-primary add" data-dismiss="modal">Add</button>
+						</li>
+					{{/each}}
+					</ol>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
