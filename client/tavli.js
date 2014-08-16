@@ -9,14 +9,21 @@ Accounts.ui.config({
 Meteor.subscribe('userDirectory');
 Meteor.subscribe('userData');
 
+// ----- Helper Functions -----
+var getFriends = function() {
+
+	var user = Meteor.user();
+
+	return user && user.friends ? Meteor.users.find({_id: {$in: user.friends}}, {sort: {username: 1}}) : [];
+};
+
 // ----- Add Friend Dialog -----
 
 Template.addFriendDialog.users = function() {
-	var currentUser = Meteor.user(),
-		friendIdList = _.map(currentUser.friends, function(friend) { return friend._id; });
+	var currentUser = Meteor.user();
 
 	if (currentUser.friends) {
-		return Meteor.users.find({$nor: [{_id: {$in: friendIdList}}, {_id: currentUser._id}]});
+		return Meteor.users.find({$nor: [{_id: {$in: currentUser.friends}}, {_id: currentUser._id}]});
 	} else {
 		return Meteor.users.find({_id: {$not: currentUser._id}});
 	}
@@ -32,18 +39,51 @@ Template.addFriendDialog.events({
 	}
 });
 
+// ----- Remove Friend Dialog -----
+
+Template.removeFriendDialog.friends = function() {
+	return getFriends();
+};
+
+Template.removeFriendDialog.events({
+	'click .remove': function() {
+		Meteor.call('removeFriend', this._id);
+	},
+
+	'click .done': function() {
+		Session.set('showRemoveFriendDialog', false);
+	}
+});
+
 // ----- Main Page -----
 
 var openAddFriendDialog = function() {
-	Session.set('showAddFriendDialog', true);
-};
+		Session.set('showAddFriendDialog', true);
+	},
+
+	openRemoveFriendDialog = function() {
+		Session.set('showRemoveFriendDialog', true);
+	};
 
 Template.mainPage.showAddFriendDialog = function() {
 	return Session.get('showAddFriendDialog');
 };
 
+Template.mainPage.showRemoveFriendDialog = function() {
+	return Session.get('showRemoveFriendDialog');
+};
+
 // ----- Logged in User Information -----
 
+Template.userInformation.currentUser = function() {
+	return Meteor.user();
+};
+
+Template.userInformation.friends = function() {
+	return getFriends();
+};
+
 Template.userInformation.events({
-	'click .js-add-friend': openAddFriendDialog
+	'click .js-add-friend': openAddFriendDialog,
+	'click .js-remove-friend': openRemoveFriendDialog
 });

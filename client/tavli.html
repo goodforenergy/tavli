@@ -49,8 +49,12 @@
 		{{> addFriendDialog}}
 	{{/if}}
 
+	{{#if showRemoveFriendDialog}}
+		{{> removeFriendDialog}}
+	{{/if}}
+
 	<div class="row">
-		{{> userInformation currentUser}}
+		{{> userInformation}}
 	</div>
 </template>
 
@@ -61,7 +65,7 @@
 </template>
 
 <template name="userInformation">
-	<h2>Hey {{username}}, let's play a game.</h2>
+	<h2>Hey {{currentUser.username}}, let's play a game.</h2>
 
 	<h3>Friends</h3>
 
@@ -80,6 +84,7 @@
 		{{/each}}
 	</table>
 	<button type="button" class="btn btn-primary js-add-friend">Add New Friend</button>
+	<button type="button" class="btn btn-info js-remove-friend">Edit Friends</button>
 </template>
 
 <template name="addFriendDialog">
@@ -95,6 +100,31 @@
 						<li>
 							<span>{{username}}</span>
 							<button type="button" class="btn btn-primary add" data-dismiss="modal">Add</button>
+						</li>
+					{{/each}}
+					</ol>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+
+<template name="removeFriendDialog">
+	<div class="modal fade in show">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Edit Friends</h4>
+				</div>
+				<div class="modal-body">
+					<ol>
+					{{#each friends}}
+						<li>
+							<span>{{username}}</span>
+							<button type="button" class="btn btn-danger remove" data-dismiss="modal">Remove</button>
 						</li>
 					{{/each}}
 					</ol>

@@ -16,20 +16,13 @@ Meteor.methods({
 	addFriend: function(userId) {
 		check(userId, String);
 
-		var currentUser = Meteor.user(),
-			friendUsername = Meteor.users.findOne({_id: userId}).username;
+		var currentUser = Meteor.user();
 
 		// Add new friend to current user's friend list
-		Meteor.users.update({ _id: currentUser._id }, {$push: {friends: {
-			_id: userId,
-			username: friendUsername
-		}}});
+		Meteor.users.update({ _id: currentUser._id }, {$push: {friends: userId}});
 
 		// Add current user to new friend's friend list
-		Meteor.users.update({ _id: userId }, { $push: {friends: {
-			_id: currentUser._id,
-			username: currentUser.username
-		}}});
+		Meteor.users.update({ _id: userId }, { $push: {friends: currentUser._id}});
 	},
 
 	removeFriend: function(userId) {
@@ -37,8 +30,8 @@ Meteor.methods({
 
 		var currentUserId = Meteor.userId();
 
-		Meteor.users.update({_id: currentUserId}, {$pull: {friends: {$elemMatch: {_id: userId}}}});
-		Meteor.users.update({_id: userId }, {$pull: {friends: {$elemMatch: {_id: currentUserId}}}});
+		Meteor.users.update({_id: currentUserId}, {$pull: {friends: userId}});
+		Meteor.users.update({_id: userId }, {$pull: {friends: currentUserId}});
 	},
 
 	clearFriends: function() {
@@ -88,4 +81,3 @@ Meteor.methods({
 	turn: userId
 }
 */
-
