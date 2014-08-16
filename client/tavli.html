@@ -8,23 +8,36 @@
 </body>
 
 <template name="page">
+	{{> navBar}}
 	<div class="container">
-		<div class="page-header">
-			<h1>Tavli</h1>
-			<p class="lead">Modern backgammon.</p>
-		</div>
+		<h1>Tavli</h1>
+		<p class="lead">Modern backgammon.</p>
 		{{#if currentUser}}
 			{{> mainPage}}
 		{{else}}
-			{{> loginPage}}
+			{{> splash}}
 		{{/if}}
 	</div>
 </template>
 
-<template name="loginPage">
-	<div class="row">
-		<div class="sign-in">
-			{{> loginButtons}}
+<template name="navBar">
+	<div class="navbar navbar-default" role="navigation">
+		<!--<div class="navbar-header">
+			<a class="navbar-brand" href="#">Tavli</a>
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>-->
+		<div class="navbar-collapse collapse">
+			<!--<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Link</a></li>
+			</ul>-->
+			<ul class="nav navbar-nav navbar-right">
+				{{> loginButtons }}
+			</ul>
 		</div>
 	</div>
 </template>
@@ -34,12 +47,17 @@
 		{{> addFriendDialog}}
 	{{/if}}
 
-	<div class="col-sm-12 col-md-8 col-lg-10">
-		{{> userInformation currentUser}}
+	<div class="row">
+		<div class="col-sm-12 col-md-8 col-lg-10">
+			{{> userInformation currentUser}}
+		</div>
+		<div class="col-sm-12 col-md-4 col-lg-2">
+			{{> loginButtons}}
+		</div>
 	</div>
-	<div class="col-sm-12 col-md-4 col-lg-2">
-		{{> loginButtons}}
-	</div>
+</template>
+
+<template name="splash">
 </template>
 
 <template name="userInformation">
