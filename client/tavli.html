@@ -10,8 +10,10 @@
 <template name="page">
 	{{> navBar}}
 	<div class="container">
-		<h1>Tavli</h1>
-		<p class="lead">Modern backgammon.</p>
+		<div class="row">
+			<h1>Tavli</h1>
+			<p class="lead">Modern backgammon.</p>
+		</div>
 		{{#if currentUser}}
 			{{> mainPage}}
 		{{else}}
@@ -48,16 +50,14 @@
 	{{/if}}
 
 	<div class="row">
-		<div class="col-sm-12 col-md-8 col-lg-10">
-			{{> userInformation currentUser}}
-		</div>
-		<div class="col-sm-12 col-md-4 col-lg-2">
-			{{> loginButtons}}
-		</div>
+		{{> userInformation currentUser}}
 	</div>
 </template>
 
 <template name="splash">
+	<div class="jumbotron">
+		<h2>LET'S PLAY!</h2>
+	</div>
 </template>
 
 <template name="userInformation">
