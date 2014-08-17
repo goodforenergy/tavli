@@ -1,3 +1,4 @@
+/* global Games */
 'use strict';
 
 Meteor.publish('userDirectory', function() {
@@ -13,4 +14,8 @@ Meteor.publish('userData', function() {
 	} else {
 		this.ready();
 	}
+});
+
+Meteor.publish('games', function() {
+	return Games.find({});
 });

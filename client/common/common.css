@@ -1,0 +1,63 @@
+.turquoise {
+	color: #1abc9c
+}
+
+.turquoise:hover {
+	color: #16a085; /* green sea */
+}
+
+.emerald {
+	color: #2ecc71
+}
+
+.emerald:hover {
+	color: #27ae60; /* nephritis */
+}
+
+.peter-river {
+	color: #3498db
+}
+
+.peter-river:hover {
+	color: #2980b9; /* belize hole */
+}
+
+.amethyst {
+	color: #9b59b6
+}
+
+.amethyst:hover {
+	color: #8e44ad; /* wisteria */
+}
+
+.wet-asphalt {
+	color: #34495e
+}
+
+.wet-asphalt:hover {
+	color: #2c3e50; /* midnight blue */
+}
+
+.sunflower {
+	color: #f1c40f
+}
+
+.sunflower:hover {
+	color: #f39c12; /* orange */
+}
+
+.carrot {
+	color: #e67e22
+}
+
+.carrot:hover {
+	color: #d35400; /* pumpkin */
+}
+
+.alizarin {
+	color: #e74c3c
+}
+
+.alizarin:hover {
+	color: #c0392b; /* pomegranate */
+}

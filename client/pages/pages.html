@@ -15,7 +15,11 @@
 			<p class="lead">Modern backgammon.</p>
 		</div>
 		{{#if currentUser}}
-			{{> mainPage}}
+			{{#if currentGame}}
+				{{> gamePage}}
+			{{else}}
+				{{> mainPage}}
+			{{/if}}
 		{{else}}
 			{{> splash}}
 		{{/if}}
@@ -34,9 +38,9 @@
 			</button>
 		</div>-->
 		<div class="navbar-collapse collapse">
-			<!--<ul class="nav navbar-nav">
-				<li class="active"><a href="#">Link</a></li>
-			</ul>-->
+			<ul class="nav navbar-nav">
+				<li><a href="#" class="home">Home</a></li>
+			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				{{> loginButtons }}
 			</ul>
@@ -79,7 +83,13 @@
 			<tr>
 				<td>{{username}}</td>
 				<td>No games yet</td>
-				<td>New game?</td>
+				<td>
+				{{#if currentGame}}
+					<a href="#" class="js-resume-game">Resume</a> or <a href="#" class="js-cancel-game">Forfeit</a>
+				{{else}}
+					<a href="#" class="js-start-game">Start new game</a>
+				{{/if}}
+				</td>
 			</tr>
 		{{/each}}
 	</table>
