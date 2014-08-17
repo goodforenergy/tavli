@@ -67,15 +67,21 @@ Meteor.methods({
 		Meteor.users.update({_id: currentUserId}, {$set: {friends: []}});
 	},
 
-	// ----- Games -----
+	// ----- Game Setup -----
 
 	newGame: function(player1, player2) {
 		'use strict';
 		return games.insert({
 			players: [player1, player2],
 			board: [],
-			colours: {}
+			colours: {},
+			startingRolls: {}
 		});
+	},
+
+	startGame: function(gameId) {
+		'use strict';
+		games.update({_id: gameId}, {$set: {status: 'IN_PROGRESS'}});
 	},
 
 	cancelGame: function(gameId) {
@@ -83,14 +89,53 @@ Meteor.methods({
 		games.remove(gameId);
 	},
 
+	rollToStart: function(gameId, playerId, roll) {
+		'use strict';
+
+		var game = games.findOne({_id: gameId}),
+			startingRolls = game.startingRolls,
+			player2Id = _.without(game.players, playerId)[0],
+			player1Roll,
+			player2Roll;
+
+		startingRolls[playerId] = roll;
+
+		player1Roll = startingRolls[playerId];
+		player2Roll = startingRolls[player2Id];
+
+		if (player1Roll && player2Roll && player1Roll !== player2Roll) {
+			games.update({_id: gameId}, {$set: {
+				startingRolls: startingRolls,
+				turn: player1Roll > player2Roll ? playerId : player2Id
+			}});
+		} else {
+			games.update({_id: gameId}, {$set: {
+				startingRolls: startingRolls
+			}});
+		}
+	},
+
 	setColour: function(gameId, playerId, colourId) {
 		'use strict';
+
 		var game = games.findOne({_id: gameId}),
-			colours = game.colours;
+			colours = game.colours,
+			player2Id = _.without(game.players, playerId)[0];
+
+		if (colours[player2Id] === colourId) {
+			return false;
+		}
 
 		colours[playerId] = colourId;
-
 		games.update({_id: gameId}, {$set: {colours: colours}});
+
+		return true;
+	},
+
+	// ----- Gameplay -----
+	setTurn: function(gameId, playerId) {
+		'use strict';
+		games.update({_id: gameId}, {$set: {turn: playerId}});
 	}
 });
 
@@ -121,7 +166,6 @@ Games = games;
 }
 */
 
-// TODO Games
 /*
 {
 	gameId: 987,
@@ -129,6 +173,10 @@ Games = games;
 	colours: {
 		123: '#ff0000',
 		234: '#00ffff'
+	},
+	startingRolls: {
+		123: 4,
+		234: 3
 	},
 	board: [],
 	turn: userId

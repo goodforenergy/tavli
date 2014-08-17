@@ -27,7 +27,8 @@ Template.page.currentGame = function() {
 
 // ----- Nav Bar -----
 Template.navBar.events({
-	'click .home': function() {
+	'click .home': function(e) {
+		e.preventDefault();
 		Session.set('currentGame', null);
 	}
 });
@@ -101,25 +102,30 @@ Template.userInformation.friends = function() {
 };
 
 Template.userInformation.events({
-	'click .js-add-friend': function() {
+	'click .js-add-friend': function(e) {
+		e.preventDefault();
 		Session.set('showAddFriendDialog', true);
 	},
 
-	'click .js-remove-friend': function() {
+	'click .js-remove-friend': function(e) {
+		e.preventDefault();
 		Session.set('showRemoveFriendDialog', true);
 	},
 
-	'click .js-resume-game': function() {
+	'click .js-resume-game': function(e) {
+		e.preventDefault();
 		Session.set('currentGame', this.currentGame._id);
 	},
 
-	'click .js-cancel-game': function() {
+	'click .js-cancel-game': function(e) {
+		e.preventDefault();
 		Meteor.call('cancelGame', this.currentGame._id);
 		// TODO A warning or some notification to other users
 		Session.set('currentGame', null);
 	},
 
-	'click .js-start-game': function() {
+	'click .js-start-game': function(e) {
+		e.preventDefault();
 		Meteor.call('newGame', this._id, Meteor.userId(), function(error, newGameId) {
 			// TODO error handling
 			Session.set('currentGame', newGameId);

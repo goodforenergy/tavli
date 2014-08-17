@@ -1,0 +1,46 @@
+<template name="gamePage">
+	<div class="row">
+		<h2><span class="{{colours currentUser._id}}">{{currentUser.username}}</span> vs <span class="{{colours friend._id}}">{{friend.username}}</span></h2>
+	</div>
+	{{#if gameInProgress}}
+		{{> gamePlay}}
+	{{else}}
+		{{> gameSetupTemplate}}
+	{{/if}}
+</template>
+
+<template name="gameSetup">
+	<div class="row">
+		{{#if playerNeedsToPickColour}}
+			<h3>Choose a Colour</h3>
+			<ul>
+			{{#each colours}}
+				<li><a href="#" class="js-colour {{name}}">{{colourName name friend._id}}</a></li>
+			{{/each}}
+			</ul>
+		{{else}}
+			<h3>Waiting for {{friend.username}} to choose a colour...</h3>
+		{{/if}}
+	</div>
+</template>
+
+<template name="gameRollToStart">
+	<div class="row">
+		<h3>Roll To See Who Starts</h3>
+		{{#if playerNeedsToRoll}}
+			{{#if playersNeedToRollAgain}}
+				<h4>Uh oh.. you guys rolled the same. Try again.</h4>
+			{{/if}}
+			<button type="button" class="btn btn-primary js-roll">Roll!</button>
+		{{else}}
+			{{#if bothPlayersHaveRolled}}
+				<div>{{startingPlayer}} gets the first turn.</div>
+				<button type="button" class="btn btn-primary js-proceed">Let's Go!</button>
+			{{else}}
+				<h4>Waiting for {{friend.username}} to roll.</h4>
+			{{/if}}
+		{{/if}}
+		<div class="col-xs-12 col-sm-6">Your roll: {{currentUserRoll}}</div>
+		<div class="col-xs-12 col-sm-6">Their roll: {{friendRoll}}</div>
+	</div>
+</template>
