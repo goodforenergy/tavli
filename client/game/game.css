@@ -1,0 +1,54 @@
+html, body, .container {
+	height:100%;
+}
+
+.board {
+	width: 50%;
+	height: 80%;
+	margin: 0 auto;
+}
+
+.board-row-low .place,
+.board-row-high .place:nth-child(odd) {
+	background-color: pink;
+}
+
+.board-row-high .place,
+.board-row-low .place:nth-child(odd) {
+	background-color: blue;
+}
+
+.board-row-low {
+	-moz-transform:rotate(180deg);
+	-webkit-transform:rotate(180deg);
+	-o-transform:rotate(180deg);
+	-ms-transform:rotate(180deg);
+	transform:rotate(180deg);
+}
+
+.board-row {
+	height: 50%;
+}
+
+.place {
+	height: 100%;
+	padding: 0 4px;
+	position: relative;
+}
+
+.circle {
+    height: 0;
+    width: 100%;
+    padding-bottom: 100%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+}
+
+.circle-h {
+	background: lightblue;
+}
+
+.circle-l {
+	background: pink;
+}

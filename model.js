@@ -178,7 +178,53 @@ Games = games;
 		123: 4,
 		234: 3
 	},
-	board: [],
+	base: {
+		123: 'l',
+		234: 'h'
+	}
+	board: [
+		1: [],
+		2: [],
+		3: ['h', 'h'],
+		4: [],
+		5: ['l', 'l', 'l', 'l', 'l'],
+		6: [],
+		7: ['l', 'l', 'l'],
+		8: [],
+		9: [],
+		10: ['h', 'h', 'h', 'h', 'h'],
+		11: ['l', 'l', 'l', 'l', 'l'],
+		12: [],
+		13: [],
+		14: ['h', 'h', 'h'],
+		15: [],
+		16: ['h', 'h', 'h', 'h', 'h'],
+		17: [],
+		18: ['l', 'l'],
+		19: [],
+		20: [],
+		limbo: [],
+		removed: {
+			l: [],
+			h: []
+		}
+	],
 	turn: userId
 }
+
+// Low
+// Base is 1-5
+// Moves are made by subtracting rolls from places
+// Render from low to high, starting at bottom right corner and proceeding clockwise
+
+// High
+// Base is 16 - 20
+// Moves are made by adding rolls to places
+// Render from high to low, starting at bottom left corner and proceeding anti-clockwise
+
+- render circles
+- move one circle to a different place on the board
+- click events on circles
+- render a board
+
 */

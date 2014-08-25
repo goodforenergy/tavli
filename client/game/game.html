@@ -2,7 +2,33 @@
 	<div class="row">
 		<h3><span class="{{currentPlayerColour}}">{{currentPlayer}} turn</span></h3>
 	</div>
+
+	<div class="board">
+		<div class="row board-row board-row-high">
+			{{#each highPlaces}}
+				{{> place this}}
+			{{/each}}
+		</div>
+		<div class="row board-row board-row-low">
+			{{#each lowPlaces}}
+				{{> place this}}
+			{{/each}}
+		</div>
+	</div>
+
 	{{#if currentUsersTurn}}
 		<button type="button" class="btn btn-primary js-done">I'm done</button>
 	{{/if}}
+</template>
+
+<template name="place">
+	<div class="col-xs-1 place">
+		{{#each this}}
+			{{> piece}}
+		{{/each}}
+	</div>
+</template>
+
+<template name="piece">
+	<div class="circle circle-{{this}}"></div>
 </template>

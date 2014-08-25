@@ -27,3 +27,5 @@ To run:
 * Refactor the dialog code to avoid duplication
 * Refactor model.js methods to pass in current user
 
+**Resources**
+[D3 Grids Example](http://bl.ocks.org/bunkat/2605010)

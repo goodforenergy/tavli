@@ -19,8 +19,34 @@ Template.gamePlay.currentPlayer = function() {
 	return currentPlayer().username + '\'s';
 };
 
-Template.gamePlay.currentPlayerColour = function() {
-	return getGame().colours[currentPlayer()._id];
+Template.gamePlay.highPlaces = function() {
+	return [
+		['l', 'l', 'l', 'l', 'l'],
+		[],
+		[],
+		['h', 'h', 'h'],
+		[],
+		['h', 'h', 'h', 'h', 'h'],
+		[],
+		['l', 'l'],
+		[],
+		[]
+	];
+};
+
+Template.gamePlay.lowPlaces = function() {
+	return [
+		[],
+		[],
+		['h', 'h'],
+		[],
+		['l', 'l', 'l', 'l', 'l'],
+		[],
+		['l', 'l', 'l'],
+		[],
+		[],
+		['h', 'h', 'h', 'h', 'h']
+	];
 };
 
 Template.gamePlay.currentUsersTurn = function() {
