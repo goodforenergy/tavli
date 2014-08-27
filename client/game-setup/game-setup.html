@@ -9,22 +9,33 @@
 	{{/if}}
 </template>
 
-<template name="gameSetup">
+<template name="colourSelection">
 	<div class="row">
-		{{#if playerNeedsToPickColour}}
-			<h3>Choose a Colour</h3>
+		<h3>Choose a Colour</h3>
+		<ul>
+		{{#each colours}}
+			<li><a href="#" class="js-colour {{name}}">{{colourName name friend._id}}</a></li>
+		{{/each}}
+		</ul>
+	</div>
+</template>
+
+<template name="baseSelection">
+	<div class="row">
+		{{#if playerNeedsToPickBase}}
+			<h3>Pick a base</h3>
 			<ul>
-			{{#each colours}}
-				<li><a href="#" class="js-colour {{name}}">{{colourName name friend._id}}</a></li>
+			{{#each bases}}
+				<li><a href="#" class="js-base {{base}}">{{baseFormatter this friend._id}}</a></li>
 			{{/each}}
 			</ul>
 		{{else}}
-			<h3>Waiting for {{friend.username}} to choose a colour...</h3>
+			<h3>Waiting for {{friend.username}} to choose {{whatUserIsWaitingOn}}...</h3>
 		{{/if}}
 	</div>
 </template>
 
-<template name="gameRollToStart">
+<template name="rollToStart">
 	<div class="row">
 		<h3>Roll To See Who Starts</h3>
 		{{#if playerNeedsToRoll}}

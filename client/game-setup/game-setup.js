@@ -14,9 +14,21 @@ var colours = [
 		{name: 'alizarin'}
 	],
 
+	bases = [
+		{
+			base: 'high',
+			key: 'h'
+		},
+		{
+			base: 'low',
+			key: 'l'
+		}
+	],
+
 	STATUS = {
-		SETUP: 'gameSetup',
-		ROLL_TO_START: 'gameRollToStart'
+		COLOUR_SELECTION: 'colourSelection',
+		BASE_SELECTION: 'baseSelection',
+		ROLL_TO_START: 'rollToStart'
 	},
 
 	TOO_LATE = 'Too Late! Already Taken',
@@ -40,8 +52,12 @@ var colours = [
 		return Meteor.users.findOne({_id: getFriendId()});
 	},
 
-	playersNeedToPickAColour = function() {
+	playersNeedToPickColours = function() {
 		return Object.keys(getGame('colours')).length !== 2;
+	},
+
+	playersNeedToPickBases = function() {
+		return Object.keys(getGame('bases')).length !== 2;
 	},
 
 	playersNeedToRoll = function() {
@@ -61,21 +77,35 @@ var colours = [
 		return players.length === 2 && rolls[players[0]] === rolls[players[1]];
 	},
 
-	getGameStatus = function() {
-
-		// If either player needs to choose a colour, game is still in setup
-		if (playersNeedToPickAColour()) {
-			return STATUS.SETUP;
-
-		// Flow into this block in case they haven't clicked the 'start' button yet
-		}
-		return STATUS.ROLL_TO_START;
-	},
-
 	getCurrentColour = function(id) {
 		// TODO Can I only return the colours field here?
 		var colours = Games.findOne({_id: Session.get('currentGame')}).colours;
 		return colours && colours[id];
+	},
+
+	playerNeedsToPickColour = function() {
+		return !getCurrentColour(Meteor.userId());
+	},
+
+	getCurrentBase = function(id) {
+		// TODO Can I only return the base field here?
+		var bases = Games.findOne({_id: Session.get('currentGame')}).bases;
+		return bases && bases[id];
+	},
+
+	getGameStatus = function() {
+
+		if (playerNeedsToPickColour()) {
+			return STATUS.COLOUR_SELECTION;
+		}
+
+		// Can't progress from here until both players have picked bases
+		if (playersNeedToPickBases()) {
+			return STATUS.BASE_SELECTION;
+		}
+
+		// In case they have finished setup but haven't hit start yet
+		return STATUS.ROLL_TO_START;
 	},
 
 	roll = function() {
@@ -99,23 +129,19 @@ Template.gamePage.gameSetupTemplate = function() {
 	return Template[getGameStatus()];
 };
 
-// ----- Game Setup -----
-Template.gameSetup.playerNeedsToPickColour = function() {
-	return !getCurrentColour(Meteor.userId());
-};
+// ----- Colour Selection -----
+Template.colourSelection.friend = getFriend;
 
-Template.gameSetup.friend = getFriend;
-
-Template.gameSetup.colours = function() {
+Template.colourSelection.colours = function() {
 	return colours;
 };
 
-Template.gameSetup.colourName = function(name, friendId) {
+Template.colourSelection.colourName = function(name, friendId) {
 	var friendColour = getCurrentColour(friendId);
 	return name === friendColour ? TOO_LATE : name;
 };
 
-Template.gameSetup.events({
+Template.colourSelection.events({
 	'click .js-colour': function(e) {
 		e.preventDefault();
 
@@ -128,40 +154,72 @@ Template.gameSetup.events({
 	}
 });
 
+// ----- Base Selection -----
+
+Template.baseSelection.friend = getFriend;
+
+Template.baseSelection.playerNeedsToPickBase = function() {
+	return !getCurrentBase(Meteor.userId());
+};
+
+Template.baseSelection.bases = function() {
+	return bases;
+};
+
+Template.baseSelection.baseFormatter = function(base, friendId) {
+	var friendBase = getCurrentBase(friendId);
+	return base.key === friendBase ? TOO_LATE : base.base;
+};
+
+Template.baseSelection.whatUserIsWaitingOn = function() {
+	return playersNeedToPickColours() ? 'a colour' : 'a base';
+};
+
+Template.baseSelection.events({
+	'click .js-base': function(e) {
+		e.preventDefault();
+		var gameId = Session.get('currentGame'),
+			userId = Meteor.userId();
+
+		if (this.base !== TOO_LATE) {
+			Meteor.call('setBase', gameId, userId, this.key);
+		}
+	}
+});
+
 // ----- Game Roll -----
 
-Template.gameRollToStart.friend = getFriend;
+Template.rollToStart.friend = getFriend;
 
 // TODO Refactor into some kind of roll status
-Template.gameRollToStart.playerNeedsToRoll = function() {
+Template.rollToStart.playerNeedsToRoll = function() {
 	// Player needs to roll if they haven't, or if their roll is equal to their friend's roll
 	var rolls = getGame('startingRolls');
 	return !rolls || !rolls[Meteor.userId()] || playersNeedToRollAgain();
 };
 
-Template.gameRollToStart.playersNeedToRollAgain = playersNeedToRollAgain;
+Template.rollToStart.playersNeedToRollAgain = playersNeedToRollAgain;
 
-Template.gameRollToStart.bothPlayersHaveRolled = function() {
-	console.log(!playersNeedToRoll());
+Template.rollToStart.bothPlayersHaveRolled = function() {
 	return !playersNeedToRoll();
 };
 
-Template.gameRollToStart.currentUserRoll = function() {
+Template.rollToStart.currentUserRoll = function() {
 	var rolls = getGame('startingRolls');
 	return rolls && rolls[Meteor.userId()] || '-';
 };
 
-Template.gameRollToStart.friendRoll = function() {
+Template.rollToStart.friendRoll = function() {
 	var rolls = getGame('startingRolls');
 	return rolls && rolls[getFriendId()] || '-';
 };
 
-Template.gameRollToStart.startingPlayer = function() {
+Template.rollToStart.startingPlayer = function() {
 	var startingPlayer = getGame('turn');
 	return Meteor.users.findOne({_id: startingPlayer}).username;
 };
 
-Template.gameRollToStart.events({
+Template.rollToStart.events({
 	'click .js-roll': function(e) {
 		e.preventDefault();
 		Meteor.call('rollToStart', Session.get('currentGame'), Meteor.userId(), roll());

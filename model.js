@@ -73,8 +73,90 @@ Meteor.methods({
 		'use strict';
 		return games.insert({
 			players: [player1, player2],
-			board: [],
+			board: [
+				{
+					place: 0,
+					pieces: []
+				},
+				{
+					place: 1,
+					pieces: []
+				},
+				{
+					place: 2,
+					pieces: ['h', 'h']
+				},
+				{
+					place: 3,
+					pieces: []
+				},
+				{
+					place: 4,
+					pieces: ['l', 'l', 'l', 'l', 'l']
+				},
+				{
+					place: 5,
+					pieces: []
+				},
+				{
+					place: 6,
+					pieces: ['l', 'l', 'l']
+				},
+				{
+					place: 7,
+					pieces: []
+				},
+				{
+					place: 8,
+					pieces: []
+				},
+				{
+					place: 9,
+					pieces: ['h', 'h', 'h', 'h', 'h']
+				},
+				{
+					place: 10,
+					pieces: ['l', 'l', 'l', 'l', 'l']
+				},
+				{
+					place: 11,
+					pieces: []
+				},
+				{
+					place: 12,
+					pieces: []
+				},
+				{
+					place: 13,
+					pieces: ['h', 'h', 'h']
+				},
+				{
+					place: 14,
+					pieces: []
+				},
+				{
+					place: 15,
+					pieces: ['h', 'h', 'h', 'h', 'h']
+				},
+				{
+					place: 16,
+					pieces: []
+				},
+				{
+					place: 17,
+					pieces: ['l', 'l']
+				},
+				{
+					place: 18,
+					pieces: []
+				},
+				{
+					place: 19,
+					pieces: []
+				}
+			],
 			colours: {},
+			bases: {},
 			startingRolls: {}
 		});
 	},
@@ -132,10 +214,51 @@ Meteor.methods({
 		return true;
 	},
 
+	setBase: function(gameId, playerId, base) {
+		'use strict';
+
+		var game = games.findOne({_id: gameId}),
+			bases = game.bases;
+
+		// Can't set if already defined or if base is not one of 'h' or 'l'
+		if (bases[playerId] || ['h', 'l'].indexOf(base) === -1) {
+			return false;
+		}
+
+		bases[playerId] = base;
+		games.update({_id: gameId}, {$set: {bases: bases}});
+
+		return true;
+	},
+
 	// ----- Gameplay -----
 	setTurn: function(gameId, playerId) {
 		'use strict';
 		games.update({_id: gameId}, {$set: {turn: playerId}});
+	},
+
+	movePiece: function(gameId, piece, place) {
+		'use strict';
+
+		var game = games.findOne({_id: gameId}),
+			board = game.board,
+			fromStack = board[piece.place],
+			toStack = board[place],
+			movedPiece;
+
+		// Ensure the piece requested is the top of the pile (TODO - change to always select top?)
+		if (!fromStack.pieces || fromStack.pieces[fromStack.pieces.length - 1] !== piece.piece) {
+			return false;
+		}
+
+		movedPiece = fromStack.pieces.pop();
+		toStack.pieces.push(movedPiece);
+
+		board[piece.place] = fromStack;
+		board[place] = toStack;
+
+		games.update({_id: gameId}, {$set: {board: board}});
+		return board;
 	}
 });
 
