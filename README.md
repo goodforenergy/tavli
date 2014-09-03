@@ -15,10 +15,20 @@ To run:
 ## TODO
 
 **Features**
-* User search
-* Friend Requests
+
+* Forfeiting if you are stuck
+* Move validation
+* Limbo, and moving to / from
+* Prevent moving other items if you have items in limbo
+* Moving items off the board
+* Winning
 * Statistics
+* Friend search
+* Friend requests
 * Delete information about a friendship when a friend is removed
+* See what you've selected
+* Stacking items
+* Only allow forfeiting if you can't move
 
 **Security**
 * Prevent users from updating other user fields
@@ -28,4 +38,3 @@ To run:
 * Refactor model.js methods to pass in current user
 
 **Resources**
-[D3 Grids Example](http://bl.ocks.org/bunkat/2605010)
