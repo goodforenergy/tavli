@@ -34,7 +34,7 @@ Template.gamePlay.currentUsersTurn = function() {
 };
 
 Template.gamePlay.events({
-	'click .js-done': function(e) {
+	'click .js-forfeit': function(e) {
 		e.preventDefault();
 		Meteor.call('setTurn', Session.get('currentGame'), _.without(getGame().players, Meteor.userId())[0]);
 	},

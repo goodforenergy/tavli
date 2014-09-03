@@ -16,7 +16,6 @@ To run:
 
 **Features**
 
-* Forfeiting if you are stuck
 * Move validation
 * Limbo, and moving to / from
 * Prevent moving other items if you have items in limbo
