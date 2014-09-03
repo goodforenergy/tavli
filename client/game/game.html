@@ -1,28 +1,31 @@
 <template name="gamePlay">
 	<div class="row">
 		<h3><span class="{{currentPlayerColour}}">{{currentPlayer}} turn</span></h3>
+		{{#if currentUsersTurn}}
+			<button type="button" class="btn btn-primary js-forfeit">Forfeit</button>
+		{{/if}}
 	</div>
-
-	<div class="board">
-		<div class="row board-row board-row-high">
-			{{#each highPlaces}}
-				{{> place this}}
-			{{/each}}
-		</div>
-		<div class="row board-row board-row-low">
-			{{#each lowPlaces}}
-				{{> place this}}
-			{{/each}}
+	<div class="row">
+		<div class="board-wrapper">
+			<div class="board">
+				<div class="board-row board-row-high">
+					{{#each highPlaces}}
+						{{> place this}}
+					{{/each}}
+				</div>
+				<div class="board-row board-row-low">
+					{{#each lowPlaces}}
+						{{> place this}}
+					{{/each}}
+				</div>
+			</div>
 		</div>
 	</div>
-
-	{{#if currentUsersTurn}}
-		<button type="button" class="btn btn-primary js-forfeit">Forfeit</button>
-	{{/if}}
 </template>
 
 <template name="place">
 	<div class="col-xs-1 place">
+		<div class="triangle-down"></div>
 		{{#each pieces}}
 			{{> piece}}
 		{{/each}}
@@ -30,5 +33,5 @@
 </template>
 
 <template name="piece">
-	<div class="circle circle-{{this}}"></div>
+	<div class="circle background-{{playerColour this}}"></div>
 </template>

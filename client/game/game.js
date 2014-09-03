@@ -12,6 +12,14 @@ var getGame = function() {
 		return Meteor.users.findOne({_id: getGame().turn});
 	},
 
+	friendId = function() {
+		return _.without(getGame().players, Meteor.userId())[0];
+	},
+
+	getCurrentUsersBase = function() {
+		return getGame().bases[Meteor.userId()];
+	},
+
 	currentlySelectedPiece;
 
 Template.gamePlay.currentPlayer = function() {
@@ -33,10 +41,16 @@ Template.gamePlay.currentUsersTurn = function() {
 	return getGame().turn === Meteor.userId();
 };
 
+Template.piece.playerColour = function(highOrLow) {
+	var colours = getGame().colours;
+
+	return highOrLow === getCurrentUsersBase() ? colours[Meteor.userId()] : colours[friendId()];
+};
+
 Template.gamePlay.events({
 	'click .js-forfeit': function(e) {
 		e.preventDefault();
-		Meteor.call('setTurn', Session.get('currentGame'), _.without(getGame().players, Meteor.userId())[0]);
+		Meteor.call('setTurn', Session.get('currentGame'), friendId());
 	},
 	'click .place': function(e) {
 		e.preventDefault();
@@ -44,7 +58,7 @@ Template.gamePlay.events({
 		var pieces = this.pieces,
 			place = this.place,
 			selectedPiece = pieces && pieces[pieces.length - 1],
-			currentUsersBase = getGame().bases[Meteor.userId()];
+			currentUsersBase = getCurrentUsersBase();
 
 		// If it's not the user's turn, don't do anything
 		if (getGame().turn !== Meteor.userId()) {

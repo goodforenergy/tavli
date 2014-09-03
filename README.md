@@ -16,17 +16,19 @@ To run:
 
 **Features**
 
-* Move validation
+* Display which piece is selected
+* Display stacked items
 * Limbo, and moving to / from
+* Roll per turn
 * Prevent moving other items if you have items in limbo
+* Move validation
+* Roll validation (e.g. two turns per role)
 * Moving items off the board
 * Winning
 * Statistics
 * Friend search
 * Friend requests
 * Delete information about a friendship when a friend is removed
-* See what you've selected
-* Stacking items
 * Only allow forfeiting if you can't move
 
 **Security**

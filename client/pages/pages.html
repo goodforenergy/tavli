@@ -10,14 +10,14 @@
 <template name="page">
 	{{> navBar}}
 	<div class="container">
-		<div class="row">
-			<h1>Tavli</h1>
-			<p class="lead">Modern backgammon.</p>
-		</div>
 		{{#if currentUser}}
 			{{#if currentGame}}
 				{{> gamePage}}
 			{{else}}
+				<div class="row">
+					<h1>Tavli</h1>
+					<p class="lead">Modern backgammon.</p>
+				</div>
 				{{> mainPage}}
 			{{/if}}
 		{{else}}

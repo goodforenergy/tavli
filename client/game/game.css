@@ -2,20 +2,34 @@ html, body, .container {
 	height:100%;
 }
 
-.board {
-	width: 50%;
-	height: 80%;
+.board-wrapper {
 	margin: 0 auto;
+	margin-bottom: 30px;
+	width: 54%;
+	position: relative;
+}
+
+.board-wrapper::after {
+	padding-top: 80%;
+	display: block;
+	content: '';
+}
+
+.board {
+	position: absolute;
+	top: 0; bottom: 0; right: 0; left: 0;
+	overflow: hidden;
+	border: solid #7f8c8d;
 }
 
 .board-row-low .place,
 .board-row-high .place:nth-child(odd) {
-	background-color: pink;
+	background-color: #ecf0f1;
 }
 
 .board-row-high .place,
-.board-row-low .place:nth-child(odd) {
-	background-color: blue;
+.board-row-low .place:nth-child(even) {
+	background-color: #bdc3c7;
 }
 
 .board-row-low {
@@ -36,19 +50,44 @@ html, body, .container {
 	position: relative;
 }
 
-.circle {
+.triangle-down {
     height: 0;
-    width: 100%;
-    padding-bottom: 100%;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    border-radius: 50%;
+    position: absolute;
+    padding-left: 50%;
+    padding-top: 50%;
+    overflow: hidden;
 }
 
-.circle-h {
-	background: lightblue;
+.triangle-down:after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    margin-left:-500px;
+    margin-top:-500px;
+
+    border-left: 500px solid transparent;
+    border-right: 500px solid transparent;
 }
 
-.circle-l {
-	background: pink;
+.board-row-low .place .triangle-down:after,
+.board-row-high .place:nth-child(odd) .triangle-down:after {
+	border-top: 500px solid #bdc3c7;
+}
+
+.board-row-high .place .triangle-down:after,
+.board-row-low .place:nth-child(even) .triangle-down:after {
+	border-top: 500px solid #ecf0f1;
+}
+
+.circle {
+	height: 0;
+	width: 80%;
+	padding-bottom: 80%;
+	margin: 0 auto 2px auto;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+	border-radius: 50%;
+	position: relative;
+	z-index: 1;
 }
