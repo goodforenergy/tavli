@@ -1,4 +1,4 @@
-/*global Games*/
+/*global Games, $*/
 'use strict';
 
 // ----- Gameplay -----
@@ -48,41 +48,52 @@ Template.piece.playerColour = function(highOrLow) {
 };
 
 Template.gamePlay.events({
+
 	'click .js-forfeit': function(e) {
 		e.preventDefault();
 		Meteor.call('setTurn', Session.get('currentGame'), friendId());
 	},
+
 	'click .place': function(e) {
 		e.preventDefault();
 
-		var pieces = this.pieces,
+		var target = $(e.target),
+			pieces = this.pieces,
 			place = this.place,
-			selectedPiece = pieces && pieces[pieces.length - 1],
-			currentUsersBase = getCurrentUsersBase();
+			currentUsersBase = getCurrentUsersBase(),
+			selectedPiece,
+			selectedPieceElement;
 
 		// If it's not the user's turn, don't do anything
 		if (getGame().turn !== Meteor.userId()) {
 			return;
 		}
 
-		// If the user already had a piece selected, move it
-		if (currentlySelectedPiece) {
-			Meteor.call('movePiece', Session.get('currentGame'), currentlySelectedPiece, place, function(error, result) {
+		// Select the top piece in the stack
+		if ((target && target.hasClass('circle')) && (pieces && pieces[pieces.length - 1])) {
+			selectedPiece = pieces[pieces.length - 1];
+			selectedPieceElement = $(e.currentTarget).children('.circle').last();
+		}
+
+		// If the user already had a piece selected, and they've selected a different place, move it
+		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
+			Meteor.call('movePiece', Session.get('currentGame'), currentlySelectedPiece, place, function(error) {
 				if (!error) {
-					console.log('Move complete');
-					console.log(result);
 					currentlySelectedPiece = null;
 				}
 			});
 
 		// Otherwise, if they are trying to select a piece that belongs to them, select it
 		} else if (selectedPiece && selectedPiece === currentUsersBase) {
-			currentlySelectedPiece = {
-				piece: selectedPiece,
-				place: place
-			};
-			console.log('Selecting piece');
-			console.log(currentlySelectedPiece);
+
+			// Don't do anything if a piece on this place is already selected
+			if (!currentlySelectedPiece || currentlySelectedPiece.place !== place) {
+				currentlySelectedPiece = {
+					piece: selectedPiece,
+					place: place
+				};
+				selectedPieceElement.addClass('circle-active');
+			}
 		}
 	}
 });

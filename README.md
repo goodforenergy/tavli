@@ -16,7 +16,6 @@ To run:
 
 **Features**
 
-* Display which piece is selected
 * Display stacked items
 * Limbo, and moving to / from
 * Roll per turn
