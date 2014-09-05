@@ -6,6 +6,18 @@
 		{{/if}}
 	</div>
 	<div class="row">
+		<div class="limbo">
+			<div class="col-xs-2"><h4>Limbo</h4></div>
+			<div class="col-xs-1 place user">
+				{{> stackedPiece userPieces}}
+			</div>
+			<div class="col-xs-1 place friend">
+				{{> stackedPiece friendPieces}}
+			</div>
+			<div class="col-xs-6"></div>
+		</div>
+	</div>
+	<div class="row">
 		<div class="board-wrapper">
 			<div class="board">
 				<div class="board-row board-row-high">
@@ -38,7 +50,7 @@
 </template>
 
 <template name="stackedPiece">
-	{{#if this}}
+	{{#if this.length}}
 		<div class="circle background-{{playerColour this}}">{{getCount this}}</div>
 	{{/if}}
 </template>

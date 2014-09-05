@@ -71,7 +71,8 @@ Meteor.methods({
 
 	newGame: function(player1, player2) {
 		'use strict';
-		return games.insert({
+
+		var newGame = {
 			players: [player1, player2],
 			board: [
 				{
@@ -155,10 +156,17 @@ Meteor.methods({
 					pieces: []
 				}
 			],
+			limbo: {},
+			removed: {},
 			colours: {},
 			bases: {},
 			startingRolls: {}
-		});
+		};
+
+		newGame.limbo[player1] = newGame.limbo[player2] = [];
+		newGame.removed[player1] = newGame.removed[player2] = [];
+
+		return games.insert(newGame);
 	},
 
 	startGame: function(gameId) {
@@ -237,28 +245,51 @@ Meteor.methods({
 		games.update({_id: gameId}, {$set: {turn: playerId}});
 	},
 
-	movePiece: function(gameId, piece, place) {
+	// Piece must be top of the pile or in limbo
+	movePiece: function(gameId, pieceToMove, place, playerId) {
 		'use strict';
 
 		var game = games.findOne({_id: gameId}),
+			friendId = _.without(game.players, playerId)[0],
 			board = game.board,
-			fromStack = board[piece.place],
-			toStack = board[place],
+			limbo = game.limbo,
+			destinationPieces = board[place].pieces,
+			numberOfDestPieces = destinationPieces.length,
+			topDestinationPiece,
 			movedPiece;
 
-		// Ensure the piece requested is the top of the pile (TODO - change to always select top?)
-		if (!fromStack.pieces || fromStack.pieces[fromStack.pieces.length - 1] !== piece.piece) {
-			return false;
+		if (numberOfDestPieces > 0) {
+			topDestinationPiece = destinationPieces[numberOfDestPieces - 1];
+
+			// Trying to place on an enemy piece
+			if (pieceToMove.piece !== topDestinationPiece) {
+
+				// There is only one piece on the stack - success! Move to limbo.
+				if (numberOfDestPieces === 1) {
+					limbo[friendId].push(destinationPieces.pop());
+				} else {
+					// The enemy is guarded, no such luck
+					return false;
+				}
+			}
 		}
 
-		movedPiece = fromStack.pieces.pop();
-		toStack.pieces.push(movedPiece);
+		// Move piece
+		if (pieceToMove.place === 'limbo') {
+			movedPiece = limbo[playerId].pop();
+		} else {
+			movedPiece = board[pieceToMove.place].pieces.pop();
+		}
 
-		board[piece.place] = fromStack;
-		board[place] = toStack;
+		destinationPieces.push(movedPiece);
+		board[place].pieces = destinationPieces;
 
-		games.update({_id: gameId}, {$set: {board: board}});
-		return board;
+		games.update({_id: gameId}, {$set: {
+			board: board,
+			limbo: limbo
+		}});
+
+		return true;
 	}
 });
 

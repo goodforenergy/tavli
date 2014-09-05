@@ -51,7 +51,65 @@ var getGame = function() {
 		return pieces[0];
 	},
 
-	currentlySelectedPiece;
+	currentlySelectedPiece,
+
+	handleCircleClick = function(context) {
+
+		var placeElement = context.placeElement,
+			boundData = context.this,
+
+			selectPiece = function(piece, place, elementToSelect) {
+				currentlySelectedPiece = {
+					piece: piece,
+					place: place
+				};
+				$('.place .circle').removeClass('circle-active');
+				elementToSelect.addClass('circle-active');
+			},
+
+			pieces,
+			selectedPiece,
+			selectedPieceElement;
+
+		// If they are in limbo, just let them select the piece
+		if (context.inLimbo) {
+			if (placeElement.hasClass('user')) {
+				selectPiece(context.userBase, 'limbo', context.circleElement);
+			}
+		} else {
+			pieces = boundData.pieces;
+
+			// Select the top piece in the stack
+			if (pieces && pieces[pieces.length - 1]) {
+				selectedPiece = pieces[pieces.length - 1];
+				selectedPieceElement = placeElement.children('.circle').last();
+			}
+
+			if (selectedPiece && selectedPiece === context.userBase) {
+				selectPiece(selectedPiece, boundData.place, selectedPieceElement);
+			}
+		}
+	},
+
+	handlePlaceClick = function(context) {
+
+		var place = context.this.place;
+
+		if (context.inLimbo) {
+			// Can't move to limbo, so just return
+			return;
+		}
+
+		// If the user already had a piece selected, and they've selected a different place, move it
+		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
+			Meteor.call('movePiece', Session.get('currentGame'), currentlySelectedPiece, place, Meteor.userId(),
+				function(error, result) {
+					if (result) {
+						currentlySelectedPiece = null;
+					}
+				});
+		}
+	};
 
 Template.gamePlay.currentPlayer = function() {
 	if (getGame().turn === Meteor.userId()) {
@@ -70,6 +128,17 @@ Template.gamePlay.lowPlaces = function() {
 
 Template.gamePlay.currentUsersTurn = function() {
 	return getGame().turn === Meteor.userId();
+};
+
+Template.gamePlay.userPieces = function() {
+	var limbo = getGame().limbo;
+	console.log(limbo);
+	return limbo[Meteor.userId()];
+};
+
+Template.gamePlay.friendPieces = function() {
+	var limbo = getGame().limbo;
+	return limbo[friendId()];
 };
 
 Template.piece.playerColour = playerColour;
@@ -96,43 +165,25 @@ Template.gamePlay.events({
 	'click .place': function(e) {
 		e.preventDefault();
 
-		var target = $(e.target),
-			pieces = this.pieces,
-			place = this.place,
-			currentUsersBase = getCurrentUsersBase(),
-			selectedPiece,
-			selectedPieceElement;
+		var target = $(e.target), // What the user actually clicked on
+			currentTarget = $(e.currentTarget), // The element that caused this handler to be invoked, i.e. the place
+			context = {};
 
 		// If it's not the user's turn, don't do anything
 		if (getGame().turn !== Meteor.userId()) {
 			return;
 		}
 
-		// Select the top piece in the stack
-		if ((target && target.hasClass('circle')) && (pieces && pieces[pieces.length - 1])) {
-			selectedPiece = pieces[pieces.length - 1];
-			selectedPieceElement = $(e.currentTarget).children('.circle').last();
-		}
+		context.inLimbo = currentTarget.parent('.limbo').length === 1;
+		context.placeElement = currentTarget;
+		context.userBase = getCurrentUsersBase();
+		context.this = this;
 
-		// If the user already had a piece selected, and they've selected a different place, move it
-		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
-			Meteor.call('movePiece', Session.get('currentGame'), currentlySelectedPiece, place, function(error) {
-				if (!error) {
-					currentlySelectedPiece = null;
-				}
-			});
-
-		// Otherwise, if they are trying to select a piece that belongs to them, select it
-		} else if (selectedPiece && selectedPiece === currentUsersBase) {
-
-			// Don't do anything if a piece on this place is already selected
-			if (!currentlySelectedPiece || currentlySelectedPiece.place !== place) {
-				currentlySelectedPiece = {
-					piece: selectedPiece,
-					place: place
-				};
-				selectedPieceElement.addClass('circle-active');
-			}
+		if (target.hasClass('circle')) {
+			context.circleElement = target;
+			handleCircleClick(context);
+		} else {
+			handlePlaceClick(context);
 		}
 	}
 });
