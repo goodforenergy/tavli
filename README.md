@@ -16,7 +16,6 @@ To run:
 
 **Features**
 
-* Display stacked items
 * Limbo, and moving to / from
 * Roll per turn
 * Prevent moving other items if you have items in limbo
