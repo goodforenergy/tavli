@@ -1,5 +1,13 @@
-/*global Games, $*/
+/*global Games, $, UI*/
 'use strict';
+
+UI.registerHelper('firstFour', function(arr) {
+	return arr.slice(0, 4);
+});
+
+UI.registerHelper('remaining', function(arr) {
+	return arr && arr.length > 4 ? arr.slice(4) : [];
+});
 
 // ----- Gameplay -----
 
@@ -18,6 +26,29 @@ var getGame = function() {
 
 	getCurrentUsersBase = function() {
 		return getGame().bases[Meteor.userId()];
+	},
+
+	playerColour = function(highOrLow) {
+		var colours = getGame().colours;
+
+		return highOrLow === getCurrentUsersBase() ? colours[Meteor.userId()] : colours[friendId()];
+	},
+
+	getVal = function(pieces) {
+
+		if (!pieces) {
+			return '';
+		}
+
+		// All pieces should be the same. Barf if not.
+		pieces.reduce(function(v1, v2) {
+			if (v1 !== v2) {
+				console.log('baarrrgghhh what?!');
+			}
+			return v2;
+		});
+
+		return pieces[0];
 	},
 
 	currentlySelectedPiece;
@@ -41,10 +72,18 @@ Template.gamePlay.currentUsersTurn = function() {
 	return getGame().turn === Meteor.userId();
 };
 
-Template.piece.playerColour = function(highOrLow) {
-	var colours = getGame().colours;
+Template.piece.playerColour = playerColour;
 
-	return highOrLow === getCurrentUsersBase() ? colours[Meteor.userId()] : colours[friendId()];
+Template.stackedPiece.playerColour = function(pieces) {
+	return playerColour(getVal(pieces));
+};
+
+Template.stackedPiece.getCount = function(pieces) {
+
+	if (pieces.length === 1) {
+		return '';
+	}
+	return pieces.length.toString();
 };
 
 Template.gamePlay.events({

@@ -26,12 +26,19 @@
 <template name="place">
 	<div class="col-xs-1 place">
 		<div class="triangle-down"></div>
-		{{#each pieces}}
+		{{#each firstFour pieces}}
 			{{> piece}}
 		{{/each}}
+		{{> stackedPiece remaining pieces}}
 	</div>
 </template>
 
 <template name="piece">
 	<div class="circle background-{{playerColour this}}"></div>
+</template>
+
+<template name="stackedPiece">
+	{{#if this}}
+		<div class="circle background-{{playerColour this}}">{{getCount this}}</div>
+	{{/if}}
 </template>
