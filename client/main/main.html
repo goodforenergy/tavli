@@ -1,0 +1,42 @@
+<template name="main-layout">
+	<head>
+	  <title>Tavli</title>
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+
+	<body>
+		{{> navBar}}
+		<div class="container">
+	  		{{> yield}}
+	  	</div>
+	</body>
+</template>
+
+<template name="splash">
+	<div class="jumbotron">
+		<h1>Tavli</h1>
+		<p class="lead">Modern backgammon.</p>
+	</div>
+</template>
+
+<template name="navBar">
+	<div class="navbar navbar-default" role="navigation">
+		<!--<div class="navbar-header">
+			<a class="navbar-brand" href="#">Tavli</a>
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>-->
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="#" class="home">Home</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				{{> loginButtons }}
+			</ul>
+		</div>
+	</div>
+</template>

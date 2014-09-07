@@ -21,7 +21,7 @@ var getFriends = function() {
 	};
 
 // ----- Home Page -----
-Template.page.currentGame = function() {
+Template.home.currentGame = function() {
 	return Session.get('currentGame');
 };
 
