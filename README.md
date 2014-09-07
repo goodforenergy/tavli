@@ -17,18 +17,18 @@ To run:
 **Features**
 
 * Roll per turn
+* Render the right way round for the person with high base
+* Moving items off the board
+* Winning
+* Statistics
+* Undo
+* Friend search
+* Friend requests
 * Roll validation (e.g. two turns per role)
 * Prevent moving other items if you have items in limbo
 * Move validation
-* Moving items off the board
-* Render the right way round for the person with high base
-* Winning
-* Statistics
-* Friend search
-* Friend requests
 * Delete information about a friendship when a friend is removed
 * Only allow forfeiting if you can't move
-* Undo
 
 **Security**
 * Prevent users from updating other user fields
