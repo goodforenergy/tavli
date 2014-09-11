@@ -1,8 +1,17 @@
 // The app crashes when use strict is defined up here :(
 
 // Publications - no need to publish users because it's available by default
-var games = new Meteor.Collection('games');
+var games = new Meteor.Collection('games'),
 
+	updateStatistics = function(losingPlayerId, winningPlayerId) {
+		'use strict';
+
+		Meteor.users.update({_id: losingPlayerId, 'friends._id': winningPlayerId}, {$inc: {'friends.$.statistics.losses': 1}});
+		Meteor.users.update({_id: winningPlayerId, 'friends._id': losingPlayerId}, {$inc: {'friends.$.statistics.wins': 1}});
+		return true;
+	};
+
+// TODO HHHMHHMHMMMMMM????!?!
 games.allow({
 	update: function() {
 		'use strict';
@@ -38,42 +47,157 @@ Meteor.users.allow({
 Meteor.methods({
 
 	// ----- Friends -----
+
+	/*
+	Friends are stored as an array on a user, i.e.:
+
+	{
+		_id: 123,
+		username: 'goodforenergy',
+		friends: [{
+			_id: friendId,
+			username: friend.username,
+			gameId: KJSDS98EJASD9,
+			statistics: {
+				wins: 0,
+				losses: 0
+			}
+		}]
+	}
+	*/
 	addFriend: function(friendId) {
 		'use strict';
+
 		check(friendId, String);
 
-		var currentUser = Meteor.user();
+		var currentUser = Meteor.user(),
+			friend = Meteor.users.findOne({_id: friendId}, {fields: {username: 1}});
 
-		// Add new friend to current user's friend list
-		Meteor.users.update({ _id: currentUser._id }, {$push: {friends: friendId}});
+		Meteor.call('createGame', currentUser._id, friendId, function(error, newGameId) {
+			// TODO error handling
 
-		// Add current user to new friend's friend list
-		Meteor.users.update({ _id: friendId }, { $push: {friends: currentUser._id}});
+			// Add new friend to current user's friend list
+			Meteor.users.update({ _id: currentUser._id }, {$push: {friends: {
+				_id: friendId,
+				username: friend.username,
+				gameId: newGameId,
+				statistics: {
+					wins: 0,
+					losses: 0
+				}
+			}}});
+
+			// Add current user to new friend's friend list
+			Meteor.users.update({ _id: friendId }, { $push: {friends: {
+				_id: currentUser._id,
+				username: currentUser.username,
+				gameId: newGameId,
+				statistics: {
+					wins: 0,
+					losses: 0
+				}
+			}}});
+		});
 	},
 
 	removeFriend: function(friendId) {
 		'use strict';
 		check(friendId, String);
 
-		var currentUserId = Meteor.userId();
+		var currentUser = Meteor.user(),
+			friendship = _.find(currentUser.friends, function(friend) {
+				return friend._id === friendId;
+			});
 
-		Meteor.users.update({_id: currentUserId}, {$pull: {friends: friendId}});
-		Meteor.users.update({_id: friendId }, {$pull: {friends: currentUserId}});
-	},
+		if (!friendship) {
+			return false;
+		}
 
-	clearFriends: function() {
-		'use strict';
-		var currentUserId = Meteor.userId();
-		Meteor.users.update({_id: currentUserId}, {$set: {friends: []}});
+		Meteor.users.update({_id: currentUser._id}, {$pull: {friends: { id: friendId }}});
+		Meteor.users.update({_id: friendId}, {$pull: {friends: { id: currentUser._id }}});
+
+		games.remove(friendship.gameId);
+
+		return true;
 	},
 
 	// ----- Game Setup -----
 
-	newGame: function(player1, player2) {
+	/*
+	A game looks like this:
+	{
+		_id: 'JSDFK8X38057',
+		players: [playerId, friendId],
+		board: [
+			...
+			{
+				place: 1,
+				pieces: []
+			},
+			{
+				place: 2,
+				pieces: ['h', 'h']
+			},
+			...
+		],
+		limbo: {
+			playerId: ['h', 'h'],
+			friendId: ['l']
+		},
+		removed: {
+			playerId: ['h', 'h'],
+			friendId: ['l']
+		},
+		colours: {
+			playerId: 'wet-ashphalt',
+			friendId: 'carrot'
+		},
+		bases: {
+			playerId: 'h',
+			friendId: 'l'
+		},
+		startingRolls: {
+			playerId: '4',
+			friendId: '5'
+		},
+		turn: friendId,
+		status: 'inProgress'
+	}
+	*/
+
+	// Status Changes
+
+	// createGame		-> 	notStarted
+	// setupNewGame 	-> 	setupColour
+	// setColour 		->	setupBase
+	// setBase  		->	setupRoll
+	// rollToStart		-> 	inProgress
+	// forfeit 			-> 	forfeited
+
+	createGame: function(playerId, friendId) {
 		'use strict';
 
 		var newGame = {
-			players: [player1, player2],
+			players: [playerId, friendId],
+			board: [],
+			limbo: {},
+			removed: {},
+			colours: {},
+			bases: {},
+			startingRolls: {},
+			status: 'notStarted'
+		};
+
+		newGame.limbo[playerId] = newGame.limbo[friendId] = [];
+		newGame.removed[playerId] = newGame.removed[friendId] = [];
+
+		return games.insert(newGame);
+	},
+
+	setupNewGame: function(gameId) {
+		'use strict';
+		games.update({_id: gameId}, {$set: {
+			status: 'setupColour',
 			board: [
 				{
 					place: 0,
@@ -155,69 +279,29 @@ Meteor.methods({
 					place: 19,
 					pieces: []
 				}
-			],
-			limbo: {},
-			removed: {},
-			colours: {},
-			bases: {},
-			startingRolls: {}
-		};
-
-		newGame.limbo[player1] = newGame.limbo[player2] = [];
-		newGame.removed[player1] = newGame.removed[player2] = [];
-
-		return games.insert(newGame);
+			]
+		}});
 	},
 
-	startGame: function(gameId) {
-		'use strict';
-		games.update({_id: gameId}, {$set: {status: 'IN_PROGRESS'}});
-	},
-
-	cancelGame: function(gameId) {
-		'use strict';
-		games.remove(gameId);
-	},
-
-	rollToStart: function(gameId, playerId, roll) {
-		'use strict';
-
-		var game = games.findOne({_id: gameId}),
-			startingRolls = game.startingRolls,
-			player2Id = _.without(game.players, playerId)[0],
-			player1Roll,
-			player2Roll;
-
-		startingRolls[playerId] = roll;
-
-		player1Roll = startingRolls[playerId];
-		player2Roll = startingRolls[player2Id];
-
-		if (player1Roll && player2Roll && player1Roll !== player2Roll) {
-			games.update({_id: gameId}, {$set: {
-				startingRolls: startingRolls,
-				turn: player1Roll > player2Roll ? playerId : player2Id
-			}});
-		} else {
-			games.update({_id: gameId}, {$set: {
-				startingRolls: startingRolls
-			}});
-		}
-	},
-
-	setColour: function(gameId, playerId, colourId) {
+	setColour: function(gameId, playerId, friendId, colourId) {
 		'use strict';
 
 		var game = games.findOne({_id: gameId}),
 			colours = game.colours,
-			player2Id = _.without(game.players, playerId)[0];
+			updates;
 
-		if (colours[player2Id] === colourId) {
+		if (colours[friendId] === colourId) {
 			return false;
 		}
 
 		colours[playerId] = colourId;
-		games.update({_id: gameId}, {$set: {colours: colours}});
+		updates = {colours: colours};
+
+		if (Object.keys(colours).length === 2) {
+			updates.status = 'setupBase';
+		}
+
+		games.update({_id: gameId}, {$set: updates});
 
 		return true;
 	},
@@ -226,7 +310,8 @@ Meteor.methods({
 		'use strict';
 
 		var game = games.findOne({_id: gameId}),
-			bases = game.bases;
+			bases = game.bases,
+			updates;
 
 		// Can't set if already defined or if base is not one of 'h' or 'l'
 		if (bases[playerId] || ['h', 'l'].indexOf(base) === -1) {
@@ -234,19 +319,101 @@ Meteor.methods({
 		}
 
 		bases[playerId] = base;
-		games.update({_id: gameId}, {$set: {bases: bases}});
+		updates = {bases: bases};
+
+		if (Object.keys(bases).length === 2) {
+			updates.status = 'setupRoll';
+		}
+
+		games.update({_id: gameId}, {$set: updates});
 
 		return true;
 	},
 
+	rollToStart: function(gameId, playerId, friendId) {
+		'use strict';
+
+		var game = games.findOne({_id: gameId}),
+			startingRolls = game.startingRolls,
+			friendRoll,
+			playerRoll,
+			firstTurn;
+
+		if (startingRolls[playerId] && startingRolls[playerId] !== 'draw') {
+			// They've already rolled, ignore this.
+			return false;
+		}
+
+		startingRolls[playerId] = Math.floor(Math.random() * 6) + 1;
+
+		playerRoll = startingRolls[playerId];
+
+		// Still waiting for someone to roll
+		if (Object.keys(startingRolls).length !== 2) {
+			games.update({_id: gameId}, {$set: {startingRolls: startingRolls}});
+			return true;
+		}
+
+		friendRoll = startingRolls[friendId];
+
+		// Both have rolled but they are the same.
+		if (playerRoll === friendRoll) {
+			startingRolls[playerId] = 'draw';
+			startingRolls[friendId] = 'draw';
+			games.update({_id: gameId}, {$set: {startingRolls: startingRolls}});
+			return true;
+		}
+
+		firstTurn = playerRoll > friendRoll ? playerId : friendId;
+
+		// All good!
+		games.update({_id: gameId}, {$set: {
+			startingRolls: startingRolls,
+			turn: firstTurn
+		}});
+
+		return firstTurn;
+	},
+
+	startGame: function(gameId) {
+		'use strict';
+
+		games.update({_id: gameId}, {$set: {status: 'inProgress'}});
+	},
+
+	forfeitGame: function(gameId, playerId, friendId) {
+		'use strict';
+
+		var clearBoard;
+
+		updateStatistics(playerId, friendId);
+
+		clearBoard = {
+			board: [],
+			limbo: {},
+			removed: {},
+			colours: {},
+			bases: {},
+			startingRolls: {},
+			status: 'forfeited'
+		};
+
+		clearBoard.limbo[playerId] = clearBoard.limbo[friendId] = [];
+		clearBoard.removed[playerId] = clearBoard.removed[friendId] = [];
+
+		games.update({_id: gameId}, {$set: clearBoard});
+		return true;
+	},
+
 	// ----- Gameplay -----
+
 	setTurn: function(gameId, playerId) {
 		'use strict';
 		games.update({_id: gameId}, {$set: {turn: playerId}});
 	},
 
 	// Piece must be top of the pile or in limbo
-	movePiece: function(gameId, pieceToMove, place, playerId) {
+	movePiece: function(gameId, playerId, pieceToMove, place) {
 		'use strict';
 
 		var game = games.findOne({_id: gameId}),
@@ -295,90 +462,3 @@ Meteor.methods({
 
 // Exports to Global Space
 Games = games;
-
-/*
-{
-	userId: 123,
-	friends: [{
-		userId: 234,
-		currentGame: gameId,
-		statistics: {
-			wins: 2,
-			losses: 2
-		}
-	},
-	{
-		userId: 345,
-		currentGame: gameId,
-		statistics: {
-			wins: 3,
-			losses: 2
-		}
-	}
-	],
-	totalWins: 4
-}
-*/
-
-/*
-{
-	gameId: 987,
-	players: [123, 234],
-	colours: {
-		123: '#ff0000',
-		234: '#00ffff'
-	},
-	startingRolls: {
-		123: 4,
-		234: 3
-	},
-	base: {
-		123: 'l',
-		234: 'h'
-	}
-	board: [
-		1: [],
-		2: [],
-		3: ['h', 'h'],
-		4: [],
-		5: ['l', 'l', 'l', 'l', 'l'],
-		6: [],
-		7: ['l', 'l', 'l'],
-		8: [],
-		9: [],
-		10: ['h', 'h', 'h', 'h', 'h'],
-		11: ['l', 'l', 'l', 'l', 'l'],
-		12: [],
-		13: [],
-		14: ['h', 'h', 'h'],
-		15: [],
-		16: ['h', 'h', 'h', 'h', 'h'],
-		17: [],
-		18: ['l', 'l'],
-		19: [],
-		20: [],
-		limbo: [],
-		removed: {
-			l: [],
-			h: []
-		}
-	],
-	turn: userId
-}
-
-// Low
-// Base is 1-5
-// Moves are made by subtracting rolls from places
-// Render from low to high, starting at bottom right corner and proceeding clockwise
-
-// High
-// Base is 16 - 20
-// Moves are made by adding rolls to places
-// Render from high to low, starting at bottom left corner and proceeding anti-clockwise
-
-- render circles
-- move one circle to a different place on the board
-- click events on circles
-- render a board
-
-*/

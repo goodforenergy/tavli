@@ -1,38 +1,46 @@
-<template name="gamePlay">
+<template name="game">
 	<div class="row">
-		<h3><span class="{{currentPlayerColour}}">{{currentPlayer}} turn</span></h3>
-		{{#if currentUsersTurn}}
-			<button type="button" class="btn btn-primary js-forfeit">Forfeit</button>
-		{{/if}}
+		<h2><span class="{{colours currentUser._id}}">{{currentUser.username}}</span> vs <span class="{{colours friend._id}}">{{friend.username}}</span></h2>
 	</div>
-	<div class="row">
-		<div class="limbo">
-			<div class="col-xs-2"><h4>Limbo</h4></div>
-			<div class="col-xs-1 place user">
-				{{> stackedPiece userPieces}}
-			</div>
-			<div class="col-xs-1 place friend">
-				{{> stackedPiece friendPieces}}
-			</div>
-			<div class="col-xs-6"></div>
+
+	{{#if gameInProgress}}
+		<div class="row">
+			<h3><span class="{{colours game.turn}}">{{currentPlayerUsername}} </span>turn</h3>
+			{{#if currentUsersTurn}}
+				<button type="button" class="btn btn-primary js-forfeit">Forfeit</button>
+			{{/if}}
 		</div>
-	</div>
-	<div class="row">
-		<div class="board-wrapper">
-			<div class="board">
-				<div class="board-row board-row-high">
-					{{#each highPlaces}}
-						{{> place this}}
-					{{/each}}
+		<div class="row">
+			<div class="limbo">
+				<div class="col-xs-2"><h4>Limbo</h4></div>
+				<div class="col-xs-1 place user">
+					{{> stackedPiece piecesInLimbo currentUser._id}}
 				</div>
-				<div class="board-row board-row-low">
-					{{#each lowPlaces}}
-						{{> place this}}
-					{{/each}}
+				<div class="col-xs-1 place friend">
+					{{> stackedPiece piecesInLimbo friend._id}}
 				</div>
+				<div class="col-xs-6"></div>
 			</div>
 		</div>
-	</div>
+		<div class="row">
+			<div class="board-wrapper">
+				<div class="board">
+					<div class="board-row board-row-high">
+						{{#each highPlaces}}
+							{{> place this}}
+						{{/each}}
+					</div>
+					<div class="board-row board-row-low">
+						{{#each lowPlaces}}
+							{{> place this}}
+						{{/each}}
+					</div>
+				</div>
+			</div>
+		</div>
+	{{else}}
+		{{> gameSetupTemplate}}
+	{{/if}}
 </template>
 
 <template name="place">
@@ -46,11 +54,11 @@
 </template>
 
 <template name="piece">
-	<div class="circle background-{{playerColour this}}"></div>
+	<div class="circle background-{{pieceColour this}}"></div>
 </template>
 
 <template name="stackedPiece">
 	{{#if this.length}}
-		<div class="circle background-{{playerColour this}}">{{getCount this}}</div>
+		<div class="circle background-{{stackedPieceColour this.[0]}}">{{getCount this}}</div>
 	{{/if}}
 </template>

@@ -1,5 +1,15 @@
-/*global Games, $, UI*/
+/* global $, UI, Router */
 'use strict';
+
+var getFriend = function() {
+		return Router.current().data().friend;
+	},
+
+	getGame = function() {
+		return Router.current().data().game;
+	},
+
+	currentlySelectedPiece;
 
 UI.registerHelper('firstFour', function(arr) {
 	return arr.slice(0, 4);
@@ -9,51 +19,65 @@ UI.registerHelper('remaining', function(arr) {
 	return arr && arr.length > 4 ? arr.slice(4) : [];
 });
 
-// ----- Gameplay -----
+Template.game.colours = function(id) {
+	return this.game.colours[id] || '';
+};
 
-// TODO Figure out how to dedup these and move somewhere common
-var getGame = function() {
-		return Games.findOne({_id: Session.get('currentGame')});
-	},
+Template.game.gameInProgress = function() {
+	return this.game.status === 'inProgress';
+};
 
-	currentPlayer = function() {
-		return Meteor.users.findOne({_id: getGame().turn});
-	},
+Template.game.gameSetupTemplate = function() {
+	return Template[this.game.status];
+};
 
-	friendId = function() {
-		return _.without(getGame().players, Meteor.userId())[0];
-	},
+Template.game.currentPlayerUsername = function() {
+	var user = Meteor.user();
+	return this.game.turn === user._id ? 'Your' : this.friend.username + '\'s';
+};
 
-	getCurrentUsersBase = function() {
-		return getGame().bases[Meteor.userId()];
-	},
+Template.game.currentUsersTurn = function() {
+	return this.game.turn === Meteor.userId();
+};
 
-	playerColour = function(highOrLow) {
-		var colours = getGame().colours;
+Template.game.highPlaces = function() {
+	return this.game.board.slice(10, 20);
+};
 
-		return highOrLow === getCurrentUsersBase() ? colours[Meteor.userId()] : colours[friendId()];
-	},
+Template.game.lowPlaces = function() {
+	return this.game.board.slice(0, 10);
+};
 
-	getVal = function(pieces) {
+Template.game.piecesInLimbo = function(id) {
+	return this.game.limbo[id];
+};
 
-		if (!pieces) {
-			return '';
-		}
+// ------ Piece ------
 
-		// All pieces should be the same. Barf if not.
-		pieces.reduce(function(v1, v2) {
-			if (v1 !== v2) {
-				console.log('baarrrgghhh what?!');
-			}
-			return v2;
-		});
+Template.piece.pieceColour = function(pieceValue) {
 
-		return pieces[0];
-	},
+	var game = getGame(),
+		colours = game.colours,
+		userBase = game.bases[Meteor.userId()];
 
-	currentlySelectedPiece,
+	return pieceValue === userBase ? colours[Meteor.userId()] : colours[getFriend()._id];
+};
 
-	handleCircleClick = function(context) {
+// ------ Stacked Piece ------
+
+Template.stackedPiece.stackedPieceColour = Template.piece.pieceColour;
+
+Template.stackedPiece.getCount = function(pieces) {
+
+	if (pieces.length === 1) {
+		return '';
+	}
+	return pieces.length.toString();
+};
+
+// TODO REFACTOR THE FUCK OUT OF THIS
+
+var handleCircleClick = function(context) {
 
 		var placeElement = context.placeElement,
 			boundData = context.this,
@@ -91,7 +115,7 @@ var getGame = function() {
 		}
 	},
 
-	handlePlaceClick = function(context) {
+	handlePlaceClick = function(gameId, context) {
 
 		var place = context.this.place;
 
@@ -102,7 +126,7 @@ var getGame = function() {
 
 		// If the user already had a piece selected, and they've selected a different place, move it
 		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
-			Meteor.call('movePiece', Session.get('currentGame'), currentlySelectedPiece, place, Meteor.userId(),
+			Meteor.call('movePiece', gameId, Meteor.userId(), currentlySelectedPiece, place,
 				function(error, result) {
 					if (result) {
 						currentlySelectedPiece = null;
@@ -111,55 +135,11 @@ var getGame = function() {
 		}
 	};
 
-Template.gamePlay.currentPlayer = function() {
-	if (getGame().turn === Meteor.userId()) {
-		return 'Your';
-	}
-	return currentPlayer().username + '\'s';
-};
-
-Template.gamePlay.highPlaces = function() {
-	return getGame().board.slice(10, 20);
-};
-
-Template.gamePlay.lowPlaces = function() {
-	return getGame().board.slice(0, 10);
-};
-
-Template.gamePlay.currentUsersTurn = function() {
-	return getGame().turn === Meteor.userId();
-};
-
-Template.gamePlay.userPieces = function() {
-	var limbo = getGame().limbo;
-	console.log(limbo);
-	return limbo[Meteor.userId()];
-};
-
-Template.gamePlay.friendPieces = function() {
-	var limbo = getGame().limbo;
-	return limbo[friendId()];
-};
-
-Template.piece.playerColour = playerColour;
-
-Template.stackedPiece.playerColour = function(pieces) {
-	return playerColour(getVal(pieces));
-};
-
-Template.stackedPiece.getCount = function(pieces) {
-
-	if (pieces.length === 1) {
-		return '';
-	}
-	return pieces.length.toString();
-};
-
-Template.gamePlay.events({
+Template.game.events({
 
 	'click .js-forfeit': function(e) {
 		e.preventDefault();
-		Meteor.call('setTurn', Session.get('currentGame'), friendId());
+		Meteor.call('setTurn', this.game._id, this.friend._id);
 	},
 
 	'click .place': function(e) {
@@ -167,23 +147,25 @@ Template.gamePlay.events({
 
 		var target = $(e.target), // What the user actually clicked on
 			currentTarget = $(e.currentTarget), // The element that caused this handler to be invoked, i.e. the place
+			game = getGame(),
+			userBase = game.bases[Meteor.userId()],
 			context = {};
 
 		// If it's not the user's turn, don't do anything
-		if (getGame().turn !== Meteor.userId()) {
+		if (game.turn !== Meteor.userId()) {
 			return;
 		}
 
 		context.inLimbo = currentTarget.parent('.limbo').length === 1;
 		context.placeElement = currentTarget;
-		context.userBase = getCurrentUsersBase();
+		context.userBase = userBase;
 		context.this = this;
 
 		if (target.hasClass('circle')) {
 			context.circleElement = target;
 			handleCircleClick(context);
 		} else {
-			handlePlaceClick(context);
+			handlePlaceClick(game._id, context);
 		}
 	}
 });

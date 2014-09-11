@@ -16,6 +16,7 @@ To run:
 
 **Features**
 
+* Show who's high / low (colour the base)
 * Roll per turn
 * Render the right way round for the person with high base
 * Moving items off the board
@@ -29,6 +30,16 @@ To run:
 * Move validation
 * Delete information about a friendship when a friend is removed
 * Only allow forfeiting if you can't move
+
+// Low
+// Base is 1-5
+// Moves are made by subtracting rolls from places
+// Render from low to high, starting at bottom right corner and proceeding clockwise
+
+// High
+// Base is 16 - 20
+// Moves are made by adding rolls to places
+// Render from high to low, starting at bottom left corner and proceeding anti-clockwise
 
 **Security**
 * Prevent users from updating other user fields
