@@ -44,7 +44,7 @@
 </template>
 
 <template name="place">
-	<div class="col-xs-1 place">
+	<div class="col-xs-1 place" data-place={{place}}>
 		<div class="triangle-down"></div>
 		{{#each firstFour pieces}}
 			{{> piece}}
@@ -54,11 +54,11 @@
 </template>
 
 <template name="piece">
-	<div class="circle background-{{pieceColour this}}"></div>
+	<div class="piece background-{{pieceColour this}}"></div>
 </template>
 
 <template name="stackedPiece">
 	{{#if this.length}}
-		<div class="circle background-{{stackedPieceColour this.[0]}}">{{getCount this}}</div>
+		<div class="piece background-{{stackedPieceColour this.[0]}}">{{getCount this}}</div>
 	{{/if}}
 </template>

@@ -9,7 +9,21 @@ var getFriend = function() {
 		return Router.current().data().game;
 	},
 
-	currentlySelectedPiece;
+	inLimbo = function(element) {
+		return element.parents('.limbo').length === 1;
+	},
+
+	// Keep track of what's selected
+	currentlySelectedPiece,
+
+	movePiece = function(pieceToMove, place) {
+		Meteor.call('movePiece', getGame()._id, Meteor.userId(), getFriend()._id, pieceToMove, place, function(error, result) {
+			// If the piece was successfully moved, set the currently selected piece to null
+			if (result) {
+				currentlySelectedPiece = null;
+			}
+		});
+	};
 
 UI.registerHelper('firstFour', function(arr) {
 	return arr.slice(0, 4);
@@ -75,65 +89,7 @@ Template.stackedPiece.getCount = function(pieces) {
 	return pieces.length.toString();
 };
 
-// TODO REFACTOR THE FUCK OUT OF THIS
-
-var handleCircleClick = function(context) {
-
-		var placeElement = context.placeElement,
-			boundData = context.this,
-
-			selectPiece = function(piece, place, elementToSelect) {
-				currentlySelectedPiece = {
-					piece: piece,
-					place: place
-				};
-				$('.place .circle').removeClass('circle-active');
-				elementToSelect.addClass('circle-active');
-			},
-
-			pieces,
-			selectedPiece,
-			selectedPieceElement;
-
-		// If they are in limbo, just let them select the piece
-		if (context.inLimbo) {
-			if (placeElement.hasClass('user')) {
-				selectPiece(context.userBase, 'limbo', context.circleElement);
-			}
-		} else {
-			pieces = boundData.pieces;
-
-			// Select the top piece in the stack
-			if (pieces && pieces[pieces.length - 1]) {
-				selectedPiece = pieces[pieces.length - 1];
-				selectedPieceElement = placeElement.children('.circle').last();
-			}
-
-			if (selectedPiece && selectedPiece === context.userBase) {
-				selectPiece(selectedPiece, boundData.place, selectedPieceElement);
-			}
-		}
-	},
-
-	handlePlaceClick = function(gameId, context) {
-
-		var place = context.this.place;
-
-		if (context.inLimbo) {
-			// Can't move to limbo, so just return
-			return;
-		}
-
-		// If the user already had a piece selected, and they've selected a different place, move it
-		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
-			Meteor.call('movePiece', gameId, Meteor.userId(), currentlySelectedPiece, place,
-				function(error, result) {
-					if (result) {
-						currentlySelectedPiece = null;
-					}
-				});
-		}
-	};
+// ----- Place -----
 
 Template.game.events({
 
@@ -142,30 +98,63 @@ Template.game.events({
 		Meteor.call('setTurn', this.game._id, this.friend._id);
 	},
 
-	'click .place': function(e) {
-		e.preventDefault();
+	'click .place .piece': function(e) {
+		e.stopPropagation();
 
-		var target = $(e.target), // What the user actually clicked on
-			currentTarget = $(e.currentTarget), // The element that caused this handler to be invoked, i.e. the place
+		var pieceElement = $(e.currentTarget),
 			game = getGame(),
 			userBase = game.bases[Meteor.userId()],
-			context = {};
+			baseOfSelectedPiece = $.isArray(this) ? this[0] : this,
+			pieceInLimbo,
+			placeElement,
+			place,
+			elementToSelect;
 
-		// If it's not the user's turn, don't do anything
-		if (game.turn !== Meteor.userId()) {
+		// If it's not the user's turn, or if they're trying to select an enemy piece, don't do anything
+		if (game.turn !== Meteor.userId() || baseOfSelectedPiece !== userBase) {
 			return;
 		}
 
-		context.inLimbo = currentTarget.parent('.limbo').length === 1;
-		context.placeElement = currentTarget;
-		context.userBase = userBase;
-		context.this = this;
+		pieceInLimbo = inLimbo(pieceElement);
+		placeElement = pieceInLimbo ? null : pieceElement.parent('.place');
 
-		if (target.hasClass('circle')) {
-			context.circleElement = target;
-			handleCircleClick(context);
-		} else {
-			handlePlaceClick(game._id, context);
+		// Place number is stored in the data-place attr on the place element
+		place = pieceInLimbo ? 'limbo' : placeElement.data('place');
+
+		// If the user already has a piece selected and they're not in limbo, move the piece
+		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
+			movePiece(currentlySelectedPiece, place);
+			return;
+		}
+
+		// Select either the piece (if in limbo) or else the top piece in the stack
+		elementToSelect = pieceInLimbo ? pieceElement : placeElement.children('.piece').last();
+
+		// Select piece
+		currentlySelectedPiece = {
+			base: baseOfSelectedPiece,
+			place: place
+		};
+
+		$('.place .piece').removeClass('piece-active');
+		elementToSelect.addClass('piece-active');
+	},
+
+	'click .place': function(e) {
+		e.stopPropagation();
+
+		var placeElement = $(e.currentTarget), // The element that caused this handler to be invoked, i.e. the place
+			place = this.place,
+			game = getGame();
+
+		// If it's not the user's turn, or they're trying to move to limbo (?) don't do anything
+		if (game.turn !== Meteor.userId() || inLimbo(placeElement)) {
+			return;
+		}
+
+		// If the user already had a piece selected, and they've selected a different place, move it
+		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
+			movePiece(currentlySelectedPiece, place);
 		}
 	}
 });

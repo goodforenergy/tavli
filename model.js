@@ -412,12 +412,11 @@ Meteor.methods({
 		games.update({_id: gameId}, {$set: {turn: playerId}});
 	},
 
-	// Piece must be top of the pile or in limbo
-	movePiece: function(gameId, playerId, pieceToMove, place) {
+	// pieceToMove is an object in the form {base: '', place: ''}
+	movePiece: function(gameId, playerId, friendId, pieceToMove, place) {
 		'use strict';
 
 		var game = games.findOne({_id: gameId}),
-			friendId = _.without(game.players, playerId)[0],
 			board = game.board,
 			limbo = game.limbo,
 			destinationPieces = board[place].pieces,
@@ -429,7 +428,7 @@ Meteor.methods({
 			topDestinationPiece = destinationPieces[numberOfDestPieces - 1];
 
 			// Trying to place on an enemy piece
-			if (pieceToMove.piece !== topDestinationPiece) {
+			if (pieceToMove.base !== topDestinationPiece) {
 
 				// There is only one piece on the stack - success! Move to limbo.
 				if (numberOfDestPieces === 1) {
