@@ -47,7 +47,7 @@ Template.game.gameSetupTemplate = function() {
 
 Template.game.currentPlayerUsername = function() {
 	var user = Meteor.user();
-	return this.game.turn === user._id ? 'Your' : this.friend.username + '\'s';
+	return this.game.turn === user._id ? 'your' : this.friend.username + '\'s';
 };
 
 Template.game.currentUsersTurn = function() {
@@ -91,9 +91,20 @@ Template.stackedPiece.getCount = function(pieces) {
 
 // ----- Place -----
 
+Template.place.base = function() {
+
+	var game = getGame(),
+		userId = Meteor.userId(),
+		userColour = game.colours[userId],
+		userBase = game.bases[userId],
+		homeBase = userBase === 'h' ? [15, 16, 17, 18, 19] : [0, 1, 2, 3, 4];
+
+	return _.contains(homeBase, this.place) ? userColour : '';
+};
+
 Template.game.events({
 
-	'click .js-forfeit': function(e) {
+	'click .js-done': function(e) {
 		e.preventDefault();
 		Meteor.call('setTurn', this.game._id, this.friend._id);
 	},

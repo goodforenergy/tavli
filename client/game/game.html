@@ -5,9 +5,9 @@
 
 	{{#if gameInProgress}}
 		<div class="row">
-			<h3><span class="{{colours game.turn}}">{{currentPlayerUsername}} </span>turn</h3>
+			<h3><span class="{{colours game.turn}}">It's {{currentPlayerUsername}} </span>turn.</h3>
 			{{#if currentUsersTurn}}
-				<button type="button" class="btn btn-primary js-forfeit">Forfeit</button>
+				<button type="button" class="btn btn-primary js-done">Done</button>
 			{{/if}}
 		</div>
 		<div class="row">
@@ -44,7 +44,7 @@
 </template>
 
 <template name="place">
-	<div class="col-xs-1 place" data-place={{place}}>
+	<div class="col-xs-1 place {{base}}" data-place={{place}}>
 		<div class="triangle-down"></div>
 		{{#each firstFour pieces}}
 			{{> piece}}

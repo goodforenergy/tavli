@@ -2,6 +2,12 @@
 	color: #1abc9c;
 }
 
+.board .board-row-low .turquoise .triangle-down:after,
+.board .board-row-high .turquoise .triangle-down:after {
+	border-top: 500px solid #16a085;
+	border-top: 500px solid rgba(22, 160, 133, 0.8);
+}
+
 a.turquoise:hover,
 a.turquoise:focus {
 	color: #16a085; /* green sea */
@@ -18,6 +24,12 @@ a.turquoise:focus {
 
 .emerald {
 	color: #2ecc71;
+}
+
+.board .board-row-low .emerald .triangle-down:after,
+.board .board-row-high .emerald .triangle-down:after {
+	border-top: 500px solid #2ecc71;
+	border-top: 500px solid rgba(46, 204, 113, 0.8);
 }
 
 a.emerald:hover,
@@ -38,6 +50,12 @@ a.emerald:focus {
 	color: #3498db;
 }
 
+.board .board-row-low .peter-river .triangle-down:after,
+.board .board-row-high .peter-river .triangle-down:after {
+	border-top: 500px solid #3498db;
+	border-top: 500px solid rgba(52, 152, 219, 0.8);
+}
+
 a.peter-river:hover,
 a.peter-river:focus {
 	color: #2980b9; /* belize hole */
@@ -54,6 +72,12 @@ a.peter-river:focus {
 
 .amethyst {
 	color: #9b59b6;
+}
+
+.board .board-row-low .amethyst .triangle-down:after,
+.board .board-row-high .amethyst .triangle-down:after {
+	border-top: 500px solid #9b59b6;
+	border-top: 500px solid rgba(155, 89, 182, 0.8);
 }
 
 a.amethyst:hover,
@@ -74,6 +98,12 @@ a.amethyst:focus {
 	color: #34495e;
 }
 
+.board .board-row-low .wet-asphalt .triangle-down:after,
+.board .board-row-high .wet-asphalt .triangle-down:after {
+	border-top: 500px solid #34495e;
+	border-top: 500px solid rgba(52, 73, 94, 0.8);
+}
+
 a.wet-asphalt:hover,
 a.wet-asphalt:focus {
 	color: #2c3e50; /* midnight blue */
@@ -90,6 +120,12 @@ a.wet-asphalt:focus {
 
 .sunflower {
 	color: #f1c40f;
+}
+
+.board .board-row-low .sunflower .triangle-down:after,
+.board .board-row-high .sunflower .triangle-down:after {
+	border-top: 500px solid #f1c40f;
+	border-top: 500px solid rgba(241, 196, 15, 0.8);
 }
 
 a.sunflower:hover,
@@ -110,6 +146,12 @@ a.sunflower:focus {
 	color: #e67e22;
 }
 
+.board .board-row-low .carrot .triangle-down:after,
+.board .board-row-high .carrot .triangle-down:after {
+	border-top: 500px solid #e67e22;
+	border-top: 500px solid rgba(230, 126, 34, 0.8);
+}
+
 a.carrot:hover,
 a.carrot:focus {
 	color: #d35400; /* pumpkin */
@@ -126,6 +168,12 @@ a.carrot:focus {
 
 .alizarin {
 	color: #e74c3c;
+}
+
+.board .board-row-low .alizarin .triangle-down:after,
+.board .board-row-high .alizarin .triangle-down:after {
+	border-top: 500px solid #e74c3c;
+	border-top: 500px solid rgba(231, 76, 60, 0.8);
 }
 
 a.alizarin:hover,

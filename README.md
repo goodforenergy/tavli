@@ -16,12 +16,10 @@ To run:
 
 **Features**
 
-* Show who's high / low (colour the base)
-* Roll per turn
 * Render the right way round for the person with high base
+* Roll per turn
 * Moving items off the board
 * Winning
-* Statistics
 * Undo
 * Friend search
 * Friend requests
