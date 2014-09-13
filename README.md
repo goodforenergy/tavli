@@ -16,7 +16,6 @@ To run:
 
 **Features**
 
-* Render the right way round for the person with high base
 * Roll per turn
 * Moving items off the board
 * Winning

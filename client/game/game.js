@@ -50,6 +50,10 @@ Template.game.currentPlayerUsername = function() {
 	return this.game.turn === user._id ? 'your' : this.friend.username + '\'s';
 };
 
+Template.game.base = function() {
+	return this.game.bases[Meteor.userId()];
+};
+
 Template.game.currentUsersTurn = function() {
 	return this.game.turn === Meteor.userId();
 };
@@ -99,7 +103,7 @@ Template.place.base = function() {
 		userBase = game.bases[userId],
 		homeBase = userBase === 'h' ? [15, 16, 17, 18, 19] : [0, 1, 2, 3, 4];
 
-	return _.contains(homeBase, this.place) ? userColour : '';
+	return _.contains(homeBase, this.place) ? userColour + ' base' : '';
 };
 
 Template.game.events({

@@ -27,6 +27,15 @@ html, body, .container {
 	border: solid #7f8c8d;
 }
 
+/* The high player sees the board rotated*/
+.board-wrapper .h {
+	-moz-transform:rotate(180deg);
+	-webkit-transform:rotate(180deg);
+	-o-transform:rotate(180deg);
+	-ms-transform:rotate(180deg);
+	transform:rotate(180deg);
+}
+
 .board-row-low .place,
 .board-row-high .place:nth-child(odd) {
 	background-color: #ecf0f1;
@@ -38,7 +47,8 @@ html, body, .container {
 }
 
 .board-row-low,
-.board-row-low .piece {
+.h .board-row-high .piece,
+.l .board-row-low .piece {
 	-moz-transform:rotate(180deg);
 	-webkit-transform:rotate(180deg);
 	-o-transform:rotate(180deg);
@@ -52,7 +62,7 @@ html, body, .container {
 
 .place {
 	height: 100%;
-	padding: 0 4px;
+	padding: 0;
 	position: relative;
 }
 
@@ -77,19 +87,19 @@ html, body, .container {
 }
 
 .board-row-low .place .triangle-down:after,
-.board-row-high .place:nth-child(odd) .triangle-down:after {
+.board-row-high .place:nth-child(odd):not(.base) .triangle-down:after {
 	border-top: 500px solid #bdc3c7;
 }
 
 .board-row-high .place .triangle-down:after,
-.board-row-low .place:nth-child(even) .triangle-down:after {
+.board-row-low .place:nth-child(even):not(.base) .triangle-down:after {
 	border-top: 500px solid #ecf0f1;
 }
 
 .piece {
 	height: 0;
-	width: 80%;
-	padding: 40% 0;
+	width: 70%;
+	padding: 35% 0;
 	margin: 0 auto 2px auto;
 	-moz-border-radius: 50%;
 	-webkit-border-radius: 50%;
