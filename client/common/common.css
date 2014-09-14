@@ -5,7 +5,7 @@
 .board .board-row-low .turquoise .triangle-down:after,
 .board .board-row-high .turquoise .triangle-down:after {
 	border-top: 500px solid #16a085;
-	border-top: 500px solid rgba(22, 160, 133, 0.8);
+	border-top: 500px solid rgba(22, 160, 133, 0.5);
 }
 
 a.turquoise:hover,
@@ -29,7 +29,7 @@ a.turquoise:focus {
 .board .board-row-low .emerald .triangle-down:after,
 .board .board-row-high .emerald .triangle-down:after {
 	border-top: 500px solid #2ecc71;
-	border-top: 500px solid rgba(46, 204, 113, 0.8);
+	border-top: 500px solid rgba(46, 204, 113, 0.5);
 }
 
 a.emerald:hover,
@@ -53,7 +53,7 @@ a.emerald:focus {
 .board .board-row-low .peter-river .triangle-down:after,
 .board .board-row-high .peter-river .triangle-down:after {
 	border-top: 500px solid #3498db;
-	border-top: 500px solid rgba(52, 152, 219, 0.8);
+	border-top: 500px solid rgba(52, 152, 219, 0.5);
 }
 
 a.peter-river:hover,
@@ -77,7 +77,7 @@ a.peter-river:focus {
 .board .board-row-low .amethyst .triangle-down:after,
 .board .board-row-high .amethyst .triangle-down:after {
 	border-top: 500px solid #9b59b6;
-	border-top: 500px solid rgba(155, 89, 182, 0.8);
+	border-top: 500px solid rgba(155, 89, 182, 0.5);
 }
 
 a.amethyst:hover,
@@ -101,7 +101,7 @@ a.amethyst:focus {
 .board .board-row-low .wet-asphalt .triangle-down:after,
 .board .board-row-high .wet-asphalt .triangle-down:after {
 	border-top: 500px solid #34495e;
-	border-top: 500px solid rgba(52, 73, 94, 0.8);
+	border-top: 500px solid rgba(52, 73, 94, 0.5);
 }
 
 a.wet-asphalt:hover,
@@ -125,7 +125,7 @@ a.wet-asphalt:focus {
 .board .board-row-low .sunflower .triangle-down:after,
 .board .board-row-high .sunflower .triangle-down:after {
 	border-top: 500px solid #f1c40f;
-	border-top: 500px solid rgba(241, 196, 15, 0.8);
+	border-top: 500px solid rgba(241, 196, 15, 0.5);
 }
 
 a.sunflower:hover,
@@ -149,7 +149,7 @@ a.sunflower:focus {
 .board .board-row-low .carrot .triangle-down:after,
 .board .board-row-high .carrot .triangle-down:after {
 	border-top: 500px solid #e67e22;
-	border-top: 500px solid rgba(230, 126, 34, 0.8);
+	border-top: 500px solid rgba(230, 126, 34, 0.5);
 }
 
 a.carrot:hover,
@@ -173,7 +173,7 @@ a.carrot:focus {
 .board .board-row-low .alizarin .triangle-down:after,
 .board .board-row-high .alizarin .triangle-down:after {
 	border-top: 500px solid #e74c3c;
-	border-top: 500px solid rgba(231, 76, 60, 0.8);
+	border-top: 500px solid rgba(231, 76, 60, 0.5);
 }
 
 a.alizarin:hover,

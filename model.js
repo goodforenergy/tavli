@@ -419,11 +419,42 @@ Meteor.methods({
 		var game = games.findOne({_id: gameId}),
 			board = game.board,
 			limbo = game.limbo,
+			playerBase = game.bases[playerId],
 			destinationPieces = board[place].pieces,
 			numberOfDestPieces = destinationPieces.length,
+			move,
 			topDestinationPiece,
 			movedPiece;
 
+		// Basic validation: ensure user is moving their piece
+		if (playerBase !== pieceToMove.base) {
+			return false;
+		}
+
+		// Basic validation: if user has pieces in limbo, they can only move those pieces
+		if (limbo[playerId] && limbo[playerId].length > 0) {
+
+			if (pieceToMove.place !== 'limbo') {
+				return false;
+			}
+
+		// Basic validation: if user is not in limbo, ensure they're moving in the right direction
+		} else {
+			// This should never happen but check anyway
+			if (pieceToMove.place === 'limbo') {
+				return false;
+			}
+
+			// The 'h' player moves low to high, the 'l' player moves high to low
+			// Subtracting the starting position from the destination should result in a positive result
+			// for the 'h' player and a negative result for the 'l' player
+			move = place - pieceToMove.place;
+			if (playerBase === 'h' && move < 1 || playerBase === 'l' && move > -1) {
+				return false;
+			}
+		}
+
+		// Check the space is available to be moved to
 		if (numberOfDestPieces > 0) {
 			topDestinationPiece = destinationPieces[numberOfDestPieces - 1];
 

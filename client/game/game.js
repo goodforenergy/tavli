@@ -16,11 +16,19 @@ var getFriend = function() {
 	// Keep track of what's selected
 	currentlySelectedPiece,
 
+	deselectCurrentPiece = function() {
+		currentlySelectedPiece = null;
+		$('.place .piece-active').removeClass('piece-active');
+	},
+
 	movePiece = function(pieceToMove, place) {
 		Meteor.call('movePiece', getGame()._id, Meteor.userId(), getFriend()._id, pieceToMove, place, function(error, result) {
 			// If the piece was successfully moved, set the currently selected piece to null
 			if (result) {
-				currentlySelectedPiece = null;
+				deselectCurrentPiece();
+
+				console.log(getGame().limbo[Meteor.userId()]);
+				console.log(getGame().limbo[getFriend()._id]);
 			}
 		});
 	};
@@ -118,7 +126,8 @@ Template.game.events({
 
 		var pieceElement = $(e.currentTarget),
 			game = getGame(),
-			userBase = game.bases[Meteor.userId()],
+			userId = Meteor.userId(),
+			userBase = game.bases[userId],
 			baseOfSelectedPiece = $.isArray(this) ? this[0] : this,
 			pieceInLimbo,
 			placeElement,
@@ -131,14 +140,25 @@ Template.game.events({
 		}
 
 		pieceInLimbo = inLimbo(pieceElement);
+
+		// If the user has pieces in limbo and they're trying to select another piece, don't let them
+		if (game.limbo[userId] && !pieceInLimbo) {
+			return;
+		}
+
 		placeElement = pieceInLimbo ? null : pieceElement.parent('.place');
 
 		// Place number is stored in the data-place attr on the place element
 		place = pieceInLimbo ? 'limbo' : placeElement.data('place');
 
-		// If the user already has a piece selected and they're not in limbo, move the piece
-		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
-			movePiece(currentlySelectedPiece, place);
+		if (currentlySelectedPiece) {
+			// If they've selected the same piece again, unselect it
+			if (currentlySelectedPiece.place === place) {
+				deselectCurrentPiece();
+			} else if (place !== 'limbo') {
+				// If the user already has a piece selected and they've clicked on another place (that's not limbo) move it
+				movePiece(currentlySelectedPiece, place);
+			}
 			return;
 		}
 
@@ -151,7 +171,7 @@ Template.game.events({
 			place: place
 		};
 
-		$('.place .piece').removeClass('piece-active');
+		$('.place .piece-active').removeClass('piece-active');
 		elementToSelect.addClass('piece-active');
 	},
 

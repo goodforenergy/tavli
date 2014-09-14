@@ -5,6 +5,7 @@ html, body, .container {
 .limbo {
 	margin: 0 auto;
 	width: 54%;
+	min-height: 50px;
 }
 
 .board-wrapper {
@@ -87,12 +88,12 @@ html, body, .container {
 }
 
 .board-row-low .place .triangle-down:after,
-.board-row-high .place:nth-child(odd):not(.base) .triangle-down:after {
+.board-row-high .place:nth-child(odd) .triangle-down:after {
 	border-top: 500px solid #bdc3c7;
 }
 
 .board-row-high .place .triangle-down:after,
-.board-row-low .place:nth-child(even):not(.base) .triangle-down:after {
+.board-row-low .place:nth-child(even) .triangle-down:after {
 	border-top: 500px solid #ecf0f1;
 }
 
