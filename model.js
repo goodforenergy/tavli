@@ -128,6 +128,14 @@ Meteor.methods({
 	{
 		_id: 'JSDFK8X38057',
 		players: [playerId, friendId],
+		playerData: {
+			playerId: {
+				limbo: ['h', 'h']
+			},
+			friendId: {
+				limbo: [l']
+			}
+		},
 		board: [
 			...
 			{
@@ -140,10 +148,6 @@ Meteor.methods({
 			},
 			...
 		],
-		limbo: {
-			playerId: ['h', 'h'],
-			friendId: ['l']
-		},
 		removed: {
 			playerId: ['h', 'h'],
 			friendId: ['l']
@@ -179,8 +183,8 @@ Meteor.methods({
 
 		var newGame = {
 			players: [playerId, friendId],
+			playerData: {},
 			board: [],
-			limbo: {},
 			removed: {},
 			colours: {},
 			bases: {},
@@ -188,7 +192,13 @@ Meteor.methods({
 			status: 'notStarted'
 		};
 
-		newGame.limbo[playerId] = newGame.limbo[friendId] = [];
+		newGame.playerData[playerId] = {
+			limbo: []
+		};
+		newGame.playerData[friendId] = {
+			limbo: []
+		};
+
 		newGame.removed[playerId] = newGame.removed[friendId] = [];
 
 		return games.insert(newGame);
@@ -390,7 +400,7 @@ Meteor.methods({
 
 		clearBoard = {
 			board: [],
-			limbo: {},
+			playerData: {},
 			removed: {},
 			colours: {},
 			bases: {},
@@ -398,7 +408,13 @@ Meteor.methods({
 			status: 'forfeited'
 		};
 
-		clearBoard.limbo[playerId] = clearBoard.limbo[friendId] = [];
+		clearBoard.playerData[playerId] = {
+			limbo: []
+		};
+		clearBoard.playerData[friendId] = {
+			limbo: []
+		};
+
 		clearBoard.removed[playerId] = clearBoard.removed[friendId] = [];
 
 		games.update({_id: gameId}, {$set: clearBoard});
@@ -418,7 +434,7 @@ Meteor.methods({
 
 		var game = games.findOne({_id: gameId}),
 			board = game.board,
-			limbo = game.limbo,
+			playerData = game.playerData,
 			playerBase = game.bases[playerId],
 			destinationPieces = board[place].pieces,
 			numberOfDestPieces = destinationPieces.length,
@@ -432,7 +448,7 @@ Meteor.methods({
 		}
 
 		// Basic validation: if user has pieces in limbo, they can only move those pieces
-		if (limbo[playerId] && limbo[playerId].length > 0) {
+		if (playerData[playerId].limbo.length > 0) {
 
 			if (pieceToMove.place !== 'limbo') {
 				return false;
@@ -463,7 +479,7 @@ Meteor.methods({
 
 				// There is only one piece on the stack - success! Move to limbo.
 				if (numberOfDestPieces === 1) {
-					limbo[friendId].push(destinationPieces.pop());
+					playerData[friendId].limbo.push(destinationPieces.pop());
 				} else {
 					// The enemy is guarded, no such luck
 					return false;
@@ -473,7 +489,7 @@ Meteor.methods({
 
 		// Move piece
 		if (pieceToMove.place === 'limbo') {
-			movedPiece = limbo[playerId].pop();
+			movedPiece = playerData[playerId].limbo.pop();
 		} else {
 			movedPiece = board[pieceToMove.place].pieces.pop();
 		}
@@ -483,7 +499,7 @@ Meteor.methods({
 
 		games.update({_id: gameId}, {$set: {
 			board: board,
-			limbo: limbo
+			playerData: playerData
 		}});
 
 		return true;

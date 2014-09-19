@@ -26,9 +26,6 @@ var getFriend = function() {
 			// If the piece was successfully moved, set the currently selected piece to null
 			if (result) {
 				deselectCurrentPiece();
-
-				console.log(getGame().limbo[Meteor.userId()]);
-				console.log(getGame().limbo[getFriend()._id]);
 			}
 		});
 	};
@@ -75,7 +72,7 @@ Template.game.lowPlaces = function() {
 };
 
 Template.game.piecesInLimbo = function(id) {
-	return this.game.limbo[id];
+	return this.game.playerData[id].limbo;
 };
 
 // ------ Piece ------
@@ -142,7 +139,7 @@ Template.game.events({
 		pieceInLimbo = inLimbo(pieceElement);
 
 		// If the user has pieces in limbo and they're trying to select another piece, don't let them
-		if (game.limbo[userId].length > 0 && !pieceInLimbo) {
+		if (game.playerData[userId].limbo.length > 0 && !pieceInLimbo) {
 			return;
 		}
 
