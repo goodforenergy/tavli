@@ -14,12 +14,14 @@ To run:
 
 ## TODO
 
-**Features**
+**Must Haves**
 
 * Moving items off the board
-* Undo
 * Winning
 * Roll per turn
+
+**Nice to Haves**
+* Undo
 * Friend search
 * Friend requests
 * Roll validation (e.g. two turns per role)

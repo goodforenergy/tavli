@@ -142,7 +142,7 @@ Template.game.events({
 		pieceInLimbo = inLimbo(pieceElement);
 
 		// If the user has pieces in limbo and they're trying to select another piece, don't let them
-		if (game.limbo[userId] && !pieceInLimbo) {
+		if (game.limbo[userId].length > 0 && !pieceInLimbo) {
 			return;
 		}
 
