@@ -11,14 +11,17 @@ var games = new Meteor.Collection('games'),
 		return true;
 	};
 
-// TODO HHHMHHMHMMMMMM????!?!
 games.allow({
-	update: function() {
+	update: function(userId, user, fields) {
 		'use strict';
-		return true;
-	},
-	remove: function() {
-		'use strict';
+
+		// Ensure user doesn't update fields they shouldn't have access to
+		var allowed = ['playerData', 'board', 'colours', 'bases', 'startingRolls', 'turn'];
+
+		if (_.difference(fields, allowed).length) {
+			return false;
+		}
+
 		return true;
 	}
 });
@@ -447,10 +450,21 @@ Meteor.methods({
 			return false;
 		}
 
-		// Basic validation: if user has pieces in limbo, they can only move those pieces
+		// Basic validation: if user has pieces in limbo, they can only move those pieces. Also, if they are in limbo,
+		// they can only move their piece to the enemy's base.
 		if (playerData[playerId].limbo.length > 0) {
 
 			if (pieceToMove.place !== 'limbo') {
+				return false;
+			}
+
+			// If the player is playing high, if they're in limbo they must move their pieces to the low base
+			if (playerBase === 'h' && !_.contains([0, 1, 2, 3, 4], place)) {
+				return false;
+			}
+
+			// If the player is playing high, if they're in limbo they must move their pieces to the low base
+			if (playerBase === 'l' && !_.contains([19, 18, 17, 16, 15], place)) {
 				return false;
 			}
 
