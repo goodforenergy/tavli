@@ -3,7 +3,17 @@
 		<h2><span class="{{colours currentUser._id}}">{{currentUser.username}}</span> vs <span class="{{colours friend._id}}">{{friend.username}}</span></h2>
 	</div>
 
-	{{#if gameInProgress}}
+	{{#if gameStatus "finished"}}
+		<h3><span class="{{colours winner._id}}">{{winner.username}}</span> is the winner!</h3>
+		<img src="/youwon.gif">
+	{{/if}}
+
+	{{#if gameStatus "forfeited"}}
+		<h3>Game has been forfeited. <span class="{{colours winner._id}}">{{winner.username}}</span> is the winner!</h3>
+		<img src="/youwon.gif">
+	{{/if}}
+
+	{{#if gameStatus "inProgress"}}
 		<div class="row">
 			<h3>It's<span class="{{colours game.turn}}"> {{currentPlayerUsername}} </span>turn.</h3>
 			{{#if currentUsersTurn}}
@@ -11,36 +21,60 @@
 			{{/if}}
 		</div>
 		<div class="row">
-			<div class="limbo">
-				<div class="col-xs-2"><h4>Limbo</h4></div>
-				<div class="col-xs-1 place user">
-					{{> stackedPiece piecesInLimbo currentUser._id}}
-				</div>
-				<div class="col-xs-1 place friend">
-					{{> stackedPiece piecesInLimbo friend._id}}
-				</div>
-				<div class="col-xs-6"></div>
+
+			<div class="col-xs-2">
+				{{#if removedRight currentUser._id}}
+					{{> offBoardPieces}}
+				{{/if}}
 			</div>
-		</div>
-		<div class="row">
-			<div class="board-wrapper">
-				<div class="board {{base}}">
-					<div class="board-row board-row-high">
-						{{#each highPlaces}}
-							{{> place this}}
-						{{/each}}
-					</div>
-					<div class="board-row board-row-low">
-						{{#each lowPlaces}}
-							{{> place this}}
-						{{/each}}
+			<div class="col-xs-6">
+				<div class="board-wrapper">
+					<div class="board {{base}}">
+						<div class="board-row board-row-high">
+							{{#each highPlaces}}
+								{{> place this}}
+							{{/each}}
+						</div>
+						<div class="board-row board-row-low">
+							{{#each lowPlaces}}
+								{{> place this}}
+							{{/each}}
+						</div>
 					</div>
 				</div>
 			</div>
+			<div class="col-xs-2">
+				{{#if removedLeft currentUser._id}}
+					{{> offBoardPieces}}
+				{{/if}}
+			</div>
 		</div>
-	{{else}}
+	{{/if}}
+
+	{{#if inSetup}}
 		{{> gameSetupTemplate}}
 	{{/if}}
+</template>
+
+<template name="offBoardPieces">
+	<h4 class="off-board-title">Limbo</h4>
+	<div class="limbo">
+		<div class="place user">
+			{{> stackedPiece piecesInLimbo currentUser._id}}
+		</div>
+		<div class="place friend">
+			{{> stackedPiece piecesInLimbo friend._id}}
+		</div>
+	</div>
+	<h4 class="off-board-title">Removed</h4>
+	<div class="removed">
+		<div class="place user">
+			{{> stackedPiece piecesRemoved currentUser._id}}
+		</div>
+		<div class="place friend">
+			{{> stackedPiece piecesRemoved friend._id}}
+		</div>
+	</div>
 </template>
 
 <template name="place">

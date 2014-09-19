@@ -123,6 +123,6 @@ Template.setupRoll.events({
 
 	'click .js-start': function(e) {
 		e.preventDefault();
-		Meteor.call('startGame', getGame()._id);
+		Meteor.call('startGame', getGame()._id, Meteor.userId(), getFriend()._id);
 	}
 });

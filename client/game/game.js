@@ -42,8 +42,16 @@ Template.game.colours = function(id) {
 	return this.game.colours[id] || '';
 };
 
-Template.game.gameInProgress = function() {
-	return this.game.status === 'inProgress';
+Template.game.gameStatus = function(status) {
+	return this.game.status === status;
+};
+
+Template.game.inSetup = function() {
+	return !_.contains(['finished', 'forfeited', 'inProgress'], this.game.status);
+};
+
+Template.game.winner = function() {
+	return this.game.winner === Meteor.userId() ? Meteor.user() : this.friend;
 };
 
 Template.game.gameSetupTemplate = function() {
@@ -71,8 +79,21 @@ Template.game.lowPlaces = function() {
 	return this.game.board.slice(0, 10);
 };
 
-Template.game.piecesInLimbo = function(id) {
+Template.game.removedRight = function(id) {
+	return this.game.bases[id] === 'h' ? 'removed' : '';
+};
+
+Template.game.removedLeft = function(id) {
+	return this.game.bases[id] === 'l' ? 'removed' : '';
+};
+
+// ------ Off Board Pieces -----
+Template.offBoardPieces.piecesInLimbo = function(id) {
 	return this.game.playerData[id].limbo;
+};
+
+Template.offBoardPieces.piecesRemoved = function(id) {
+	return this.game.playerData[id].removed;
 };
 
 // ------ Piece ------
@@ -187,6 +208,30 @@ Template.game.events({
 		// If the user already had a piece selected, and they've selected a different place, move it
 		if (currentlySelectedPiece && currentlySelectedPiece.place !== place) {
 			movePiece(currentlySelectedPiece, place);
+		}
+	}
+});
+
+Template.offBoardPieces.events({
+	'click .removed': function(e) {
+		e.stopPropagation();
+
+		var game = getGame(),
+			userId = Meteor.userId();
+
+		// If it's not the user's turn, don't do anything
+		if (game.turn !== userId) {
+			return;
+		}
+
+		// If the user has a piece selected, try and remove it
+		if (currentlySelectedPiece) {
+			Meteor.call('removePiece', game._id, userId, currentlySelectedPiece, function(error, result) {
+			// If the piece was successfully moved, set the currently selected piece to null
+				if (result) {
+					deselectCurrentPiece();
+				}
+			});
 		}
 	}
 });

@@ -133,10 +133,12 @@ Meteor.methods({
 		players: [playerId, friendId],
 		playerData: {
 			playerId: {
-				limbo: ['h', 'h']
+				limbo: ['h', 'h'],
+				removed: []
 			},
 			friendId: {
-				limbo: [l']
+				limbo: [l'],
+				removed: []
 			}
 		},
 		board: [
@@ -151,10 +153,6 @@ Meteor.methods({
 			},
 			...
 		],
-		removed: {
-			playerId: ['h', 'h'],
-			friendId: ['l']
-		},
 		colours: {
 			playerId: 'wet-ashphalt',
 			friendId: 'carrot'
@@ -179,6 +177,7 @@ Meteor.methods({
 	// setColour 		->	setupBase
 	// setBase  		->	setupRoll
 	// rollToStart		-> 	inProgress
+	// removePiece		->	finished
 	// forfeit 			-> 	forfeited
 
 	createGame: function(playerId, friendId) {
@@ -188,7 +187,6 @@ Meteor.methods({
 			players: [playerId, friendId],
 			playerData: {},
 			board: [],
-			removed: {},
 			colours: {},
 			bases: {},
 			startingRolls: {},
@@ -196,21 +194,21 @@ Meteor.methods({
 		};
 
 		newGame.playerData[playerId] = {
-			limbo: []
+			limbo: [],
+			removed: []
 		};
 		newGame.playerData[friendId] = {
-			limbo: []
+			limbo: [],
+			removed: []
 		};
-
-		newGame.removed[playerId] = newGame.removed[friendId] = [];
 
 		return games.insert(newGame);
 	},
 
-	setupNewGame: function(gameId) {
+	setupNewGame: function(gameId, playerId, friendId) {
 		'use strict';
-		games.update({_id: gameId}, {$set: {
-			status: 'setupColour',
+
+		var clearBoard = {
 			board: [
 				{
 					place: 0,
@@ -292,8 +290,25 @@ Meteor.methods({
 					place: 19,
 					pieces: []
 				}
-			]
-		}});
+			],
+			playerData: {},
+			colours: {},
+			bases: {},
+			startingRolls: {},
+			status: 'setupColour',
+			winner: null
+		};
+
+		clearBoard.playerData[playerId] = {
+			limbo: [],
+			removed: []
+		};
+		clearBoard.playerData[friendId] = {
+			limbo: [],
+			removed: []
+		};
+
+		games.update({_id: gameId}, {$set: clearBoard});
 	},
 
 	setColour: function(gameId, playerId, friendId, colourId) {
@@ -391,36 +406,20 @@ Meteor.methods({
 	startGame: function(gameId) {
 		'use strict';
 
-		games.update({_id: gameId}, {$set: {status: 'inProgress'}});
+		games.update({_id: gameId}, {$set: {
+			status: 'inProgress'
+		}});
 	},
 
 	forfeitGame: function(gameId, playerId, friendId) {
 		'use strict';
 
-		var clearBoard;
-
 		updateStatistics(playerId, friendId);
 
-		clearBoard = {
-			board: [],
-			playerData: {},
-			removed: {},
-			colours: {},
-			bases: {},
-			startingRolls: {},
-			status: 'forfeited'
-		};
-
-		clearBoard.playerData[playerId] = {
-			limbo: []
-		};
-		clearBoard.playerData[friendId] = {
-			limbo: []
-		};
-
-		clearBoard.removed[playerId] = clearBoard.removed[friendId] = [];
-
-		games.update({_id: gameId}, {$set: clearBoard});
+		games.update({_id: gameId}, {$set: {
+			status: 'forfeited',
+			winner: friendId
+		}});
 		return true;
 	},
 
@@ -429,6 +428,63 @@ Meteor.methods({
 	setTurn: function(gameId, playerId) {
 		'use strict';
 		games.update({_id: gameId}, {$set: {turn: playerId}});
+	},
+
+	// pieceToMove is an object in the form {base: '', place: ''}
+	removePiece: function(gameId, playerId, pieceToMove) {
+		'use strict';
+
+		var game = games.findOne({_id: gameId}),
+			board = game.board,
+			playerData = game.playerData,
+			playerBase = game.bases[playerId],
+			i,
+			movedPiece,
+			updates;
+
+		// Basic validation: ensure user is moving their piece and that they don't have any pieces in limbo
+		if (playerBase !== pieceToMove.base || playerData[playerId].limbo.length > 0) {
+			return false;
+		}
+
+		// Validation: To remove a piece from the board, all pieces must be in the user's base
+
+		// Player is playing high, so must have no pieces in places 0 - 14
+		if (playerBase === 'h') {
+
+			for (i = 0; i <= 14; i++) {
+				if (_.contains(board[i].pieces, 'h')) {
+					return false;
+				}
+			}
+
+		// Player is playing low, so must have no pieces in places 5 - 19
+		} else {
+			for (i = 5; i <= 19; i++) {
+				if (_.contains(board[i].pieces, 'l')) {
+					return false;
+				}
+			}
+		}
+
+		// Remove piece
+		movedPiece = board[pieceToMove.place].pieces.pop();
+		playerData[playerId].removed.push(movedPiece);
+
+		updates = {
+			board: board,
+			playerData: playerData
+		};
+
+		if (playerData[playerId].removed.length === 15) {
+			updates.status = 'finished';
+			updates.winner = playerId;
+		}
+
+		games.update({_id: gameId}, {$set: updates});
+
+		return true;
+
 	},
 
 	// pieceToMove is an object in the form {base: '', place: ''}

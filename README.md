@@ -16,8 +16,6 @@ To run:
 
 **Must Haves**
 
-* Moving items off the board
-* Winning
 * Roll per turn
 
 **Nice to Haves**

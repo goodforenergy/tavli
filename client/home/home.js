@@ -47,7 +47,7 @@ Template.home.events({
 	'click .js-start-game': function(e) {
 		e.preventDefault();
 
-		Meteor.call('setupNewGame', this.gameId);
+		Meteor.call('setupNewGame', this.gameId, Meteor.userId(), this._id);
 		Router.go(Router.routes.game.path({_id: this.gameId}));
 	}
 });

@@ -2,16 +2,25 @@ html, body, .container {
 	height:100%;
 }
 
-.limbo {
-	margin: 0 auto;
-	width: 54%;
-	min-height: 50px;
+.limbo, .removed {
+	min-height: 60px;
+	border: solid #7f8c8d;
+	padding: 5px;
+}
+
+.limbo .place,
+.removed .place {
+	width: 33%;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.removed {
+	margin-top: 10px;
 }
 
 .board-wrapper {
-	margin: 0 auto;
 	margin-bottom: 30px;
-	width: 54%;
 	position: relative;
 }
 
