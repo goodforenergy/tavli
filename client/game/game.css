@@ -2,6 +2,11 @@ html, body, .container {
 	height:100%;
 }
 
+/* Reset some margins */
+.title {
+	margin: 0;
+}
+
 .limbo, .removed {
 	min-height: 60px;
 	border: solid #7f8c8d;
@@ -19,8 +24,17 @@ html, body, .container {
 	margin-top: 10px;
 }
 
+.game-info {
+	margin-left: -15px;
+	padding-top: 10px;
+}
+
+.off-board-pieces {
+	margin-top: 30px;
+}
+
 .board-wrapper {
-	margin-bottom: 30px;
+	margin: 30px;
 	position: relative;
 }
 
@@ -97,12 +111,12 @@ html, body, .container {
 }
 
 .board-row-low .place .triangle-down:after,
-.board-row-high .place:nth-child(odd) .triangle-down:after {
+.board-row-high .place:nth-child(odd):not(.base) .triangle-down:after {
 	border-top: 500px solid #bdc3c7;
 }
 
 .board-row-high .place .triangle-down:after,
-.board-row-low .place:nth-child(even) .triangle-down:after {
+.board-row-low .place:nth-child(even):not(.base) .triangle-down:after {
 	border-top: 500px solid #ecf0f1;
 }
 

@@ -212,7 +212,7 @@ Meteor.methods({
 			board: [
 				{
 					place: 0,
-					pieces: []
+					pieces: ['h', 'h']
 				},
 				{
 					place: 1,
@@ -220,7 +220,7 @@ Meteor.methods({
 				},
 				{
 					place: 2,
-					pieces: ['h', 'h']
+					pieces: []
 				},
 				{
 					place: 3,
@@ -228,19 +228,19 @@ Meteor.methods({
 				},
 				{
 					place: 4,
-					pieces: ['l', 'l', 'l', 'l', 'l']
+					pieces: []
 				},
 				{
 					place: 5,
-					pieces: []
+					pieces: ['l', 'l', 'l', 'l', 'l']
 				},
 				{
 					place: 6,
-					pieces: ['l', 'l', 'l']
+					pieces: []
 				},
 				{
 					place: 7,
-					pieces: []
+					pieces: ['l', 'l', 'l']
 				},
 				{
 					place: 8,
@@ -248,23 +248,23 @@ Meteor.methods({
 				},
 				{
 					place: 9,
-					pieces: ['h', 'h', 'h', 'h', 'h']
+					pieces: []
 				},
 				{
 					place: 10,
-					pieces: ['l', 'l', 'l', 'l', 'l']
+					pieces: []
 				},
 				{
 					place: 11,
-					pieces: []
+					pieces: ['h', 'h', 'h', 'h', 'h']
 				},
 				{
 					place: 12,
-					pieces: []
+					pieces: ['l', 'l', 'l', 'l', 'l']
 				},
 				{
 					place: 13,
-					pieces: ['h', 'h', 'h']
+					pieces: []
 				},
 				{
 					place: 14,
@@ -272,29 +272,46 @@ Meteor.methods({
 				},
 				{
 					place: 15,
-					pieces: ['h', 'h', 'h', 'h', 'h']
+					pieces: []
 				},
 				{
 					place: 16,
-					pieces: []
+					pieces: ['h', 'h', 'h']
 				},
 				{
 					place: 17,
-					pieces: ['l', 'l']
+					pieces: []
 				},
 				{
 					place: 18,
-					pieces: []
+					pieces: ['h', 'h', 'h', 'h', 'h']
 				},
 				{
 					place: 19,
 					pieces: []
+				},
+				{
+					place: 20,
+					pieces: []
+				},
+				{
+					place: 21,
+					pieces: []
+				},
+				{
+					place: 22,
+					pieces: []
+				},
+				{
+					place: 23,
+					pieces: ['l', 'l']
 				}
 			],
 			playerData: {},
 			colours: {},
 			bases: {},
 			startingRolls: {},
+			rolls: [],
 			status: 'setupColour',
 			winner: null
 		};
@@ -334,15 +351,18 @@ Meteor.methods({
 		return true;
 	},
 
-	setBase: function(gameId, playerId, base) {
+	setBase: function(gameId, playerId, friendId, base) {
 		'use strict';
 
 		var game = games.findOne({_id: gameId}),
 			bases = game.bases,
 			updates;
 
-		// Can't set if already defined or if base is not one of 'h' or 'l'
-		if (bases[playerId] || ['h', 'l'].indexOf(base) === -1) {
+		// Can't set if..
+		// - already defined
+		// - if base is not one of 'h' or 'l'
+		// - if friend has already chosen this base
+		if (bases[playerId] || ['h', 'l'].indexOf(base) === -1 || bases[friendId] === base) {
 			return false;
 		}
 
@@ -425,9 +445,23 @@ Meteor.methods({
 
 	// ----- Gameplay -----
 
-	setTurn: function(gameId, playerId) {
+	changeTurn: function(gameId, playerId, friendId) {
 		'use strict';
-		games.update({_id: gameId}, {$set: {turn: playerId}});
+
+		var game = games.findOne({_id: gameId}),
+			generateRoll = function() {
+				return Math.floor(Math.random() * 6) + 1;
+			};
+
+		// You can only change turn if it's your turn to begin with
+		if (playerId !== game.turn) {
+			return false;
+		}
+
+		games.update({_id: gameId}, {$set: {
+			turn: friendId,
+			rolls: [generateRoll(), generateRoll()]
+		}});
 	},
 
 	// pieceToMove is an object in the form {base: '', place: ''}
@@ -449,18 +483,18 @@ Meteor.methods({
 
 		// Validation: To remove a piece from the board, all pieces must be in the user's base
 
-		// Player is playing high, so must have no pieces in places 0 - 14
+		// Player is playing high, so must have no pieces in places 0 - 17
 		if (playerBase === 'h') {
 
-			for (i = 0; i <= 14; i++) {
+			for (i = 0; i <= 17; i++) {
 				if (_.contains(board[i].pieces, 'h')) {
 					return false;
 				}
 			}
 
-		// Player is playing low, so must have no pieces in places 5 - 19
+		// Player is playing low, so must have no pieces in places 6 - 23
 		} else {
-			for (i = 5; i <= 19; i++) {
+			for (i = 6; i <= 23; i++) {
 				if (_.contains(board[i].pieces, 'l')) {
 					return false;
 				}
@@ -515,12 +549,12 @@ Meteor.methods({
 			}
 
 			// If the player is playing high, if they're in limbo they must move their pieces to the low base
-			if (playerBase === 'h' && !_.contains([0, 1, 2, 3, 4], place)) {
+			if (playerBase === 'h' && !_.contains([0, 1, 2, 3, 4, 5], place)) {
 				return false;
 			}
 
 			// If the player is playing high, if they're in limbo they must move their pieces to the low base
-			if (playerBase === 'l' && !_.contains([19, 18, 17, 16, 15], place)) {
+			if (playerBase === 'l' && !_.contains([23, 22, 21, 20, 19, 18], place)) {
 				return false;
 			}
 

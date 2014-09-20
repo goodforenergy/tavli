@@ -30,12 +30,12 @@ var getFriend = function() {
 		});
 	};
 
-UI.registerHelper('firstFour', function(arr) {
-	return arr.slice(0, 4);
+UI.registerHelper('firstFive', function(arr) {
+	return arr.slice(0, 5);
 });
 
 UI.registerHelper('remaining', function(arr) {
-	return arr && arr.length > 4 ? arr.slice(4) : [];
+	return arr && arr.length > 5 ? arr.slice(5) : [];
 });
 
 Template.game.colours = function(id) {
@@ -60,7 +60,12 @@ Template.game.gameSetupTemplate = function() {
 
 Template.game.currentPlayerUsername = function() {
 	var user = Meteor.user();
-	return this.game.turn === user._id ? 'your' : this.friend.username + '\'s';
+	return this.game.turn === user._id ? 'Your' : this.friend.username + '\'s';
+};
+
+Template.game.rolledUsername = function() {
+	var user = Meteor.user();
+	return this.game.turn === user._id ? 'You' : this.friend.username;
 };
 
 Template.game.base = function() {
@@ -72,19 +77,19 @@ Template.game.currentUsersTurn = function() {
 };
 
 Template.game.highPlaces = function() {
-	return this.game.board.slice(10, 20);
+	return this.game.board.slice(12, 24);
 };
 
 Template.game.lowPlaces = function() {
-	return this.game.board.slice(0, 10);
+	return this.game.board.slice(0, 12);
 };
 
-Template.game.removedRight = function(id) {
-	return this.game.bases[id] === 'h' ? 'removed' : '';
+Template.game.roll = function(roll) {
+	return this.game.rolls[roll];
 };
 
-Template.game.removedLeft = function(id) {
-	return this.game.bases[id] === 'l' ? 'removed' : '';
+Template.game.lowPlaces = function() {
+	return this.game.board.slice(0, 12);
 };
 
 // ------ Off Board Pieces -----
@@ -127,7 +132,7 @@ Template.place.base = function() {
 		userId = Meteor.userId(),
 		userColour = game.colours[userId],
 		userBase = game.bases[userId],
-		homeBase = userBase === 'h' ? [15, 16, 17, 18, 19] : [0, 1, 2, 3, 4];
+		homeBase = userBase === 'h' ? [18, 19, 20, 21, 22, 23] : [0, 1, 2, 3, 4, 5];
 
 	return _.contains(homeBase, this.place) ? userColour + ' base' : '';
 };
@@ -136,7 +141,7 @@ Template.game.events({
 
 	'click .js-done': function(e) {
 		e.preventDefault();
-		Meteor.call('setTurn', this.game._id, this.friend._id);
+		Meteor.call('changeTurn', this.game._id, Meteor.userId(), this.friend._id);
 	},
 
 	'click .place .piece': function(e) {

@@ -12,6 +12,10 @@ To run:
 
 ``` meteor ```
 
+To run with debugging:
+
+``` NODE_OPTIONS='--debug' meteor ```
+
 ## TODO
 
 **Must Haves**

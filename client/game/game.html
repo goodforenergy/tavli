@@ -1,6 +1,6 @@
 <template name="game">
 	<div class="row">
-		<h2><span class="{{colours currentUser._id}}">{{currentUser.username}}</span> vs <span class="{{colours friend._id}}">{{friend.username}}</span></h2>
+		<h2 class="title"><span class="{{colours currentUser._id}}">{{currentUser.username}}</span> vs <span class="{{colours friend._id}}">{{friend.username}}</span></h2>
 	</div>
 
 	{{#if gameStatus "finished"}}
@@ -15,19 +15,16 @@
 
 	{{#if gameStatus "inProgress"}}
 		<div class="row">
-			<h3>It's<span class="{{colours game.turn}}"> {{currentPlayerUsername}} </span>turn.</h3>
-			{{#if currentUsersTurn}}
-				<button type="button" class="btn btn-primary js-done">Done</button>
-			{{/if}}
-		</div>
-		<div class="row">
-
 			<div class="col-xs-2">
-				{{#if removedRight currentUser._id}}
-					{{> offBoardPieces}}
-				{{/if}}
+				<div class="game-info">
+					<h3><span class="{{colours game.turn}}">{{currentPlayerUsername}} </span>turn.</h3>
+					<p>{{rolledUsername}} rolled {{roll 0}} and {{roll 1}}.</p>
+					{{#if currentUsersTurn}}
+						<button type="button" class="btn btn-primary js-done">Done</button>
+					{{/if}}
+				</div>
 			</div>
-			<div class="col-xs-6">
+			<div class="col-xs-8">
 				<div class="board-wrapper">
 					<div class="board {{base}}">
 						<div class="board-row board-row-high">
@@ -44,9 +41,7 @@
 				</div>
 			</div>
 			<div class="col-xs-2">
-				{{#if removedLeft currentUser._id}}
-					{{> offBoardPieces}}
-				{{/if}}
+				<div class="off-board-pieces">{{> offBoardPieces}}</div>
 			</div>
 		</div>
 	{{/if}}
@@ -80,7 +75,7 @@
 <template name="place">
 	<div class="col-xs-1 place {{base}}" data-place={{place}}>
 		<div class="triangle-down"></div>
-		{{#each firstFour pieces}}
+		{{#each firstFive pieces}}
 			{{> piece}}
 		{{/each}}
 		{{> stackedPiece remaining pieces}}

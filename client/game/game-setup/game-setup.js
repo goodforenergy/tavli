@@ -53,7 +53,7 @@ Template.setupColour.events({
 	'click .js-colour': function(e) {
 		e.preventDefault();
 
-		if (this.name !== TOO_LATE) {
+		if (e.currentTarget.text !== TOO_LATE) {
 			Meteor.call('setColour', getGame()._id, Meteor.userId(), getFriend()._id, this.name);
 		}
 	}
@@ -78,8 +78,8 @@ Template.setupBase.events({
 	'click .js-base': function(e) {
 		e.preventDefault();
 
-		if (this.base !== TOO_LATE) {
-			Meteor.call('setBase', getGame()._id, Meteor.userId(), this.key);
+		if (e.currentTarget.text !== TOO_LATE) {
+			Meteor.call('setBase', getGame()._id, Meteor.userId(), getFriend()._id, this.key);
 		}
 	}
 });
