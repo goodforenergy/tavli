@@ -2,12 +2,14 @@
 
 // ----- Add Friend Dialog -----
 
-Template.addFriendDialog.users = function() {
-	var currentUser = Meteor.user(),
-		friends = currentUser.friends ? _.map(currentUser.friends, function(friend) { return friend._id; }) : [];
+Template.addFriendDialog.helpers({
+	users: function() {
+		var currentUser = Meteor.user(),
+			friends = currentUser.friends ? _.map(currentUser.friends, function(friend) { return friend._id; }) : [];
 
-	return Meteor.users.find({$nor: [{_id: {$in: friends}}, {_id: currentUser._id}]});
-};
+		return Meteor.users.find({$nor: [{_id: {$in: friends}}, {_id: currentUser._id}]});
+	}
+});
 
 Template.addFriendDialog.events({
 	'click .add': function() {
@@ -21,9 +23,11 @@ Template.addFriendDialog.events({
 
 // ----- Remove Friend Dialog -----
 
-Template.removeFriendDialog.friends = function() {
-	return Meteor.user().friends;
-};
+Template.removeFriendDialog.helpers({
+	friends: function() {
+		return Meteor.user().friends;
+	}
+});
 
 Template.removeFriendDialog.events({
 	'click .remove': function() {

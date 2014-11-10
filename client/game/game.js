@@ -38,104 +38,107 @@ UI.registerHelper('remaining', function(arr) {
 	return arr && arr.length > 5 ? arr.slice(5) : [];
 });
 
-Template.game.colours = function(id) {
-	return this.game.colours[id] || '';
-};
+Template.game.helpers({
+	colours: function(id) {
+		return this.game.colours[id] || '';
+	},
 
-Template.game.gameStatus = function(status) {
-	return this.game.status === status;
-};
+	gameStatus: function(status) {
+		return this.game.status === status;
+	},
 
-Template.game.inSetup = function() {
-	return !_.contains(['finished', 'forfeited', 'inProgress'], this.game.status);
-};
+	inSetup: function() {
+		return !_.contains(['finished', 'forfeited', 'inProgress'], this.game.status);
+	},
 
-Template.game.winner = function() {
-	return this.game.winner === Meteor.userId() ? Meteor.user() : this.friend;
-};
+	winner: function() {
+		return this.game.winner === Meteor.userId() ? Meteor.user() : this.friend;
+	},
 
-Template.game.gameSetupTemplate = function() {
-	return Template[this.game.status];
-};
+	gameSetupTemplate: function() {
+		return Template[this.game.status];
+	},
 
-Template.game.currentPlayerUsername = function() {
-	var user = Meteor.user();
-	return this.game.turn === user._id ? 'Your' : this.friend.username + '\'s';
-};
+	currentPlayerUsername: function() {
+		var user = Meteor.user();
+		return this.game.turn === user._id ? 'Your' : this.friend.username + '\'s';
+	},
 
-Template.game.rolledUsername = function() {
-	var user = Meteor.user();
-	return this.game.turn === user._id ? 'You' : this.friend.username;
-};
+	rolledUsername: function() {
+		var user = Meteor.user();
+		return this.game.turn === user._id ? 'You' : this.friend.username;
+	},
 
-Template.game.base = function() {
-	return this.game.bases[Meteor.userId()];
-};
+	base: function() {
+		return this.game.bases[Meteor.userId()];
+	},
 
-Template.game.currentUsersTurn = function() {
-	return this.game.turn === Meteor.userId();
-};
+	currentUsersTurn: function() {
+		return this.game.turn === Meteor.userId();
+	},
 
-Template.game.highPlaces = function() {
-	return this.game.board.slice(12, 24);
-};
+	highPlaces: function() {
+		return this.game.board.slice(12, 24);
+	},
 
-Template.game.lowPlaces = function() {
-	return this.game.board.slice(0, 12);
-};
+	lowPlaces: function() {
+		return this.game.board.slice(0, 12);
+	},
 
-Template.game.roll = function(roll) {
-	return this.game.rolls[roll];
-};
-
-Template.game.lowPlaces = function() {
-	return this.game.board.slice(0, 12);
-};
+	roll: function(roll) {
+		return this.game.rolls[roll];
+	}
+});
 
 // ------ Off Board Pieces -----
-Template.offBoardPieces.piecesInLimbo = function(id) {
-	return this.game.playerData[id].limbo;
-};
+Template.offBoardPieces.helpers({
+	piecesInLimbo: function(id) {
+		return this.game.playerData[id].limbo;
+	},
 
-Template.offBoardPieces.piecesRemoved = function(id) {
-	return this.game.playerData[id].removed;
-};
+	piecesRemoved: function(id) {
+		return this.game.playerData[id].removed;
+	}
+});
 
 // ------ Piece ------
 
-Template.piece.pieceColour = function(pieceValue) {
+Template.piece.helpers({
+	pieceColour: function(pieceValue) {
 
-	var game = getGame(),
-		colours = game.colours,
-		userBase = game.bases[Meteor.userId()];
+		var game = getGame(),
+			colours = game.colours,
+			userBase = game.bases[Meteor.userId()];
 
-	return pieceValue === userBase ? colours[Meteor.userId()] : colours[getFriend()._id];
-};
+		return pieceValue === userBase ? colours[Meteor.userId()] : colours[getFriend()._id];
+	}
+});
 
 // ------ Stacked Piece ------
 
-Template.stackedPiece.stackedPieceColour = Template.piece.pieceColour;
-
-Template.stackedPiece.getCount = function(pieces) {
-
-	if (pieces.length === 1) {
-		return '';
+Template.stackedPiece.helpers({
+	stackedPieceColour: Template.piece.pieceColour,
+	getCount: function(pieces) {
+		if (pieces.length === 1) {
+			return '';
+		}
+		return pieces.length.toString();
 	}
-	return pieces.length.toString();
-};
+});
 
 // ----- Place -----
 
-Template.place.base = function() {
+Template.place.helpers({
+	base: function() {
+		var game = getGame(),
+			userId = Meteor.userId(),
+			userColour = game.colours[userId],
+			userBase = game.bases[userId],
+			homeBase = userBase === 'h' ? [18, 19, 20, 21, 22, 23] : [0, 1, 2, 3, 4, 5];
 
-	var game = getGame(),
-		userId = Meteor.userId(),
-		userColour = game.colours[userId],
-		userBase = game.bases[userId],
-		homeBase = userBase === 'h' ? [18, 19, 20, 21, 22, 23] : [0, 1, 2, 3, 4, 5];
-
-	return _.contains(homeBase, this.place) ? userColour + ' base' : '';
-};
+		return _.contains(homeBase, this.place) ? userColour + ' base' : '';
+	}
+});
 
 Template.game.events({
 

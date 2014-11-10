@@ -116,8 +116,8 @@ Meteor.methods({
 			return false;
 		}
 
-		Meteor.users.update({_id: currentUser._id}, {$pull: {friends: { id: friendId }}});
-		Meteor.users.update({_id: friendId}, {$pull: {friends: { id: currentUser._id }}});
+		Meteor.users.update({_id: currentUser._id}, {$pull: {friends: { _id: friendId }}});
+		Meteor.users.update({_id: friendId}, {$pull: {friends: { _id: currentUser._id }}});
 
 		games.remove(friendship.gameId);
 
@@ -208,113 +208,117 @@ Meteor.methods({
 	setupNewGame: function(gameId, playerId, friendId) {
 		'use strict';
 
-		var clearBoard = {
-			board: [
-				{
-					place: 0,
-					pieces: ['h', 'h']
-				},
-				{
-					place: 1,
-					pieces: []
-				},
-				{
-					place: 2,
-					pieces: []
-				},
-				{
-					place: 3,
-					pieces: []
-				},
-				{
-					place: 4,
-					pieces: []
-				},
-				{
-					place: 5,
-					pieces: ['l', 'l', 'l', 'l', 'l']
-				},
-				{
-					place: 6,
-					pieces: []
-				},
-				{
-					place: 7,
-					pieces: ['l', 'l', 'l']
-				},
-				{
-					place: 8,
-					pieces: []
-				},
-				{
-					place: 9,
-					pieces: []
-				},
-				{
-					place: 10,
-					pieces: []
-				},
-				{
-					place: 11,
-					pieces: ['h', 'h', 'h', 'h', 'h']
-				},
-				{
-					place: 12,
-					pieces: ['l', 'l', 'l', 'l', 'l']
-				},
-				{
-					place: 13,
-					pieces: []
-				},
-				{
-					place: 14,
-					pieces: []
-				},
-				{
-					place: 15,
-					pieces: []
-				},
-				{
-					place: 16,
-					pieces: ['h', 'h', 'h']
-				},
-				{
-					place: 17,
-					pieces: []
-				},
-				{
-					place: 18,
-					pieces: ['h', 'h', 'h', 'h', 'h']
-				},
-				{
-					place: 19,
-					pieces: []
-				},
-				{
-					place: 20,
-					pieces: []
-				},
-				{
-					place: 21,
-					pieces: []
-				},
-				{
-					place: 22,
-					pieces: []
-				},
-				{
-					place: 23,
-					pieces: ['l', 'l']
-				}
-			],
-			playerData: {},
-			colours: {},
-			bases: {},
-			startingRolls: {},
-			rolls: [],
-			status: 'setupColour',
-			winner: null
-		};
+		var generateRoll = function() {
+				return Math.floor(Math.random() * 6) + 1;
+			},
+
+			clearBoard = {
+				board: [
+					{
+						place: 0,
+						pieces: ['h', 'h']
+					},
+					{
+						place: 1,
+						pieces: []
+					},
+					{
+						place: 2,
+						pieces: []
+					},
+					{
+						place: 3,
+						pieces: []
+					},
+					{
+						place: 4,
+						pieces: []
+					},
+					{
+						place: 5,
+						pieces: ['l', 'l', 'l', 'l', 'l']
+					},
+					{
+						place: 6,
+						pieces: []
+					},
+					{
+						place: 7,
+						pieces: ['l', 'l', 'l']
+					},
+					{
+						place: 8,
+						pieces: []
+					},
+					{
+						place: 9,
+						pieces: []
+					},
+					{
+						place: 10,
+						pieces: []
+					},
+					{
+						place: 11,
+						pieces: ['h', 'h', 'h', 'h', 'h']
+					},
+					{
+						place: 12,
+						pieces: ['l', 'l', 'l', 'l', 'l']
+					},
+					{
+						place: 13,
+						pieces: []
+					},
+					{
+						place: 14,
+						pieces: []
+					},
+					{
+						place: 15,
+						pieces: []
+					},
+					{
+						place: 16,
+						pieces: ['h', 'h', 'h']
+					},
+					{
+						place: 17,
+						pieces: []
+					},
+					{
+						place: 18,
+						pieces: ['h', 'h', 'h', 'h', 'h']
+					},
+					{
+						place: 19,
+						pieces: []
+					},
+					{
+						place: 20,
+						pieces: []
+					},
+					{
+						place: 21,
+						pieces: []
+					},
+					{
+						place: 22,
+						pieces: []
+					},
+					{
+						place: 23,
+						pieces: ['l', 'l']
+					}
+				],
+				playerData: {},
+				colours: {},
+				bases: {},
+				startingRolls: {},
+				rolls: [generateRoll(), generateRoll()],
+				status: 'setupColour',
+				winner: null
+			};
 
 		clearBoard.playerData[playerId] = {
 			limbo: [],

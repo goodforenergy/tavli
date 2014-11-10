@@ -5,22 +5,23 @@
 Meteor.subscribe('userDirectory');
 Meteor.subscribe('userData');
 
-Template.home.friends = function() {
-	return Meteor.user().friends;
-};
+Template.home.helpers({
+	friends: function() {
+		return Meteor.user().friends;
+	},
+	gameInProgress: function() {
+		var game = Games.findOne({_id: this.gameId}, {fields: {status: 1}});
+		return game && _.contains(['setupColour', 'setupBase', 'setupRoll', 'inProgress'], game.status);
+	},
 
-Template.home.gameInProgress = function() {
-	var game = Games.findOne({_id: this.gameId}, {fields: {status: 1}});
-	return game && _.contains(['setupColour', 'setupBase', 'setupRoll', 'inProgress'], game.status);
-};
+	showAddFriendDialog: function() {
+		return Session.equals('showDialog', 'addFriend');
+	},
 
-Template.home.showAddFriendDialog = function() {
-	return Session.equals('showDialog', 'addFriend');
-};
-
-Template.home.showRemoveFriendDialog = function() {
-	return Session.equals('showDialog', 'removeFriend');
-};
+	showRemoveFriendDialog: function() {
+		return Session.equals('showDialog', 'removeFriend');
+	}
+});
 
 Template.home.events({
 	'click .js-add-friend': function(e) {

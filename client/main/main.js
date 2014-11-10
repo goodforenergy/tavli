@@ -7,10 +7,11 @@ Accounts.ui.config({
 });
 
 // Hooks
-var isLoggedIn = function(pause) {
+var isLoggedIn = function() {
 	if (!(Meteor.user())) {
 		this.render('splash');
-		pause();
+	} else {
+		this.next();
 	}
 };
 
@@ -27,7 +28,9 @@ Router.map(function() {
 		layoutTemplate: 'main-layout',
 		onBeforeAction: isLoggedIn,
 		waitOn: function() {
-			return [Meteor.subscribe('games', this.params._id), Meteor.subscribe('users')];
+			return Meteor.subscribe('games', this.params._id);
+			// FIXME Why does this not work if we wait on users?
+			//return [Meteor.subscribe('games', this.params._id), Meteor.subscribe('users')];
 		},
 		data: function() {
 			// TODO validation of id?
