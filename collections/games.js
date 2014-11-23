@@ -1,128 +1,14 @@
-// The app crashes when use strict is defined up here :(
+var games = new Meteor.Collection('games');
 
-// Publications - no need to publish users because it's available by default
-var games = new Meteor.Collection('games'),
+var updateStatistics = function(losingPlayerId, winningPlayerId) {
+	'use strict';
 
-	updateStatistics = function(losingPlayerId, winningPlayerId) {
-		'use strict';
-
-		Meteor.users.update({_id: losingPlayerId, 'friends._id': winningPlayerId}, {$inc: {'friends.$.statistics.losses': 1}});
-		Meteor.users.update({_id: winningPlayerId, 'friends._id': losingPlayerId}, {$inc: {'friends.$.statistics.wins': 1}});
-		return true;
-	};
-
-games.allow({
-	update: function(userId, user, fields) {
-		'use strict';
-
-		// Ensure user doesn't update fields they shouldn't have access to
-		var allowed = ['playerData', 'board', 'colours', 'bases', 'startingRolls', 'turn'];
-
-		if (_.difference(fields, allowed).length) {
-			return false;
-		}
-
-		return true;
-	}
-});
-
-Meteor.users.allow({
-	update: function(userId, user, fields, modifier) {
-		'use strict';
-
-		// Ensure user doesn't update fields they shouldn't have access to
-		var allowed = ['friends'];
-
-		if (_.difference(fields, allowed).length) {
-			return false;
-		}
-
-		// User can only update their own profile
-		if (user._id === userId) {
-			Meteor.users.update({_id: userId}, modifier);
-			return true;
-		} else {
-			return false;
-		}
-	}
-});
+	Meteor.users.update({_id: losingPlayerId, 'friends._id': winningPlayerId}, {$inc: {'friends.$.statistics.losses': 1}});
+	Meteor.users.update({_id: winningPlayerId, 'friends._id': losingPlayerId}, {$inc: {'friends.$.statistics.wins': 1}});
+	return true;
+};
 
 Meteor.methods({
-
-	// ----- Friends -----
-
-	/*
-	Friends are stored as an array on a user, i.e.:
-
-	{
-		_id: 123,
-		username: 'goodforenergy',
-		friends: [{
-			_id: friendId,
-			username: friend.username,
-			gameId: KJSDS98EJASD9,
-			statistics: {
-				wins: 0,
-				losses: 0
-			}
-		}]
-	}
-	*/
-	addFriend: function(friendId) {
-		'use strict';
-
-		check(friendId, String);
-
-		var currentUser = Meteor.user(),
-			friend = Meteor.users.findOne({_id: friendId}, {fields: {username: 1}});
-
-		Meteor.call('createGame', currentUser._id, friendId, function(error, newGameId) {
-			// TODO error handling
-
-			// Add new friend to current user's friend list
-			Meteor.users.update({ _id: currentUser._id }, {$push: {friends: {
-				_id: friendId,
-				username: friend.username,
-				gameId: newGameId,
-				statistics: {
-					wins: 0,
-					losses: 0
-				}
-			}}});
-
-			// Add current user to new friend's friend list
-			Meteor.users.update({ _id: friendId }, { $push: {friends: {
-				_id: currentUser._id,
-				username: currentUser.username,
-				gameId: newGameId,
-				statistics: {
-					wins: 0,
-					losses: 0
-				}
-			}}});
-		});
-	},
-
-	removeFriend: function(friendId) {
-		'use strict';
-		check(friendId, String);
-
-		var currentUser = Meteor.user(),
-			friendship = _.find(currentUser.friends, function(friend) {
-				return friend._id === friendId;
-			});
-
-		if (!friendship) {
-			return false;
-		}
-
-		Meteor.users.update({_id: currentUser._id}, {$pull: {friends: { _id: friendId }}});
-		Meteor.users.update({_id: friendId}, {$pull: {friends: { _id: currentUser._id }}});
-
-		games.remove(friendship.gameId);
-
-		return true;
-	},
 
 	// ----- Game Setup -----
 
@@ -216,11 +102,11 @@ Meteor.methods({
 				board: [
 					{
 						place: 0,
-						pieces: ['h', 'h']
+						pieces: []
 					},
 					{
 						place: 1,
-						pieces: []
+						pieces: ['h', 'h']
 					},
 					{
 						place: 2,
@@ -304,11 +190,11 @@ Meteor.methods({
 					},
 					{
 						place: 22,
-						pieces: []
+						pieces: ['l', 'l']
 					},
 					{
 						place: 23,
-						pieces: ['l', 'l']
+						pieces: []
 					}
 				],
 				playerData: {},
@@ -614,5 +500,5 @@ Meteor.methods({
 	}
 });
 
-// Exports to Global Space
+// Export to global space
 Games = games;

@@ -1,8 +1,6 @@
 /*global Router*/
 'use strict';
 
-Meteor.subscribe('games');
-
 var colours = [
 		{name: 'turquoise'},
 		{name: 'emerald'},
@@ -37,17 +35,20 @@ var colours = [
 
 // ----- Colour Selection -----
 
-Template.setupColour.playerNeedsToChoose = function() {
-	return typeof getGame().colours[Meteor.userId()] === 'undefined';
-};
+Template.setupColour.helpers({
 
-Template.setupColour.colours = function() {
-	return colours;
-};
+	playerNeedsToChoose: function() {
+		return typeof getGame().colours[Meteor.userId()] === 'undefined';
+	},
 
-Template.setupColour.colourName = function(name, friendId) {
-	return name === getGame().colours[friendId] ? TOO_LATE : name;
-};
+	colours: function() {
+		return colours;
+	},
+
+	colourName: function(name, friendId) {
+		return name === getGame().colours[friendId] ? TOO_LATE : name;
+	}
+});
 
 Template.setupColour.events({
 	'click .js-colour': function(e) {

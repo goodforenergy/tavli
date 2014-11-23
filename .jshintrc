@@ -10,12 +10,16 @@
   // Define globals exposed by Node.
   "node": true,
 
-  // Define globals exposed by Meteor and underscore
+  // Define globals exposed by Meteor, Iron Router, Underscore, packages and my app
   "globals": {
 	"Meteor": false,
 	"Template": false,
 	"Accounts": false,
 	"Users": false,
+	"Games": false,
+	"Router": false,
+	"Notifications": false,
+	"Match": false,
 	"check": false,
 	"Session": false,
 	"_": false
