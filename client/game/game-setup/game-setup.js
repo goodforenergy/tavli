@@ -62,18 +62,20 @@ Template.setupColour.events({
 
 // ----- Base Selection -----
 
-Template.setupBase.playerNeedsToChoose = function() {
-	return typeof getGame().bases[Meteor.userId()] === 'undefined';
-};
+Template.setupBase.helpers({
+	playerNeedsToChoose: function() {
+		return typeof getGame().bases[Meteor.userId()] === 'undefined';
+	},
 
-Template.setupBase.bases = function() {
-	return bases;
-};
+	bases: function() {
+		return bases;
+	},
 
-Template.setupBase.baseFormatter = function(base, friendId) {
-	var friendBase = getGame().bases[friendId];
-	return base.key === friendBase ? TOO_LATE : base.base;
-};
+	baseFormatter: function(base, friendId) {
+		var friendBase = getGame().bases[friendId];
+		return base.key === friendBase ? TOO_LATE : base.base;
+	}
+});
 
 Template.setupBase.events({
 	'click .js-base': function(e) {
@@ -87,34 +89,37 @@ Template.setupBase.events({
 
 // ----- Game Roll -----
 
-Template.setupRoll.playerNeedsToRoll = function(id) {
-	var roll = getGame().startingRolls[id];
-	return typeof roll === 'undefined' || roll === 'draw';
-};
+Template.setupRoll.helpers({
 
-Template.setupRoll.equalRolls = function(id) {
-	var game = getGame(),
-		startingRolls = game.startingRolls;
+	playerNeedsToRoll: function(id) {
+		var roll = getGame().startingRolls[id];
+		return typeof roll === 'undefined' || roll === 'draw';
+	},
 
-	// There was a draw
-	if (startingRolls[id] === 'draw') {
-		return 'Uh oh, you guys rolled the same number. Roll again!';
+	equalRolls: function(id) {
+		var game = getGame(),
+			startingRolls = game.startingRolls;
+
+		// There was a draw
+		if (startingRolls[id] === 'draw') {
+			return 'Uh oh, you guys rolled the same number. Roll again!';
+		}
+	},
+
+	colour: function(id) {
+		return getGame().colours[id] || '';
+	},
+
+	roll: function(id) {
+		var roll = getGame().startingRolls[id];
+		return roll && roll !== 'draw' ? roll : '...';
+	},
+
+	username: function(id) {
+		var user = Meteor.user();
+		return id === user._id ? user.username : getFriend().username;
 	}
-};
-
-Template.setupRoll.colour = function(id) {
-	return getGame().colours[id] || '';
-};
-
-Template.setupRoll.roll = function(id) {
-	var roll = getGame().startingRolls[id];
-	return roll && roll !== 'draw' ? roll : '...';
-};
-
-Template.setupRoll.username = function(id) {
-	var user = Meteor.user();
-	return id === user._id ? user.username : getFriend().username;
-};
+});
 
 Template.setupRoll.events({
 	'click .js-roll': function(e) {

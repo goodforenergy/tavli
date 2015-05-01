@@ -28,6 +28,14 @@ var getFriend = function() {
 				deselectCurrentPiece();
 			}
 		});
+	},
+
+	getPieceColour = function(pieceValue) {
+		var game = getGame(),
+			colours = game.colours,
+			userBase = game.bases[Meteor.userId()];
+
+		return pieceValue === userBase ? colours[Meteor.userId()] : colours[getFriend()._id];
 	};
 
 UI.registerHelper('firstFive', function(arr) {
@@ -104,20 +112,13 @@ Template.offBoardPieces.helpers({
 // ------ Piece ------
 
 Template.piece.helpers({
-	pieceColour: function(pieceValue) {
-
-		var game = getGame(),
-			colours = game.colours,
-			userBase = game.bases[Meteor.userId()];
-
-		return pieceValue === userBase ? colours[Meteor.userId()] : colours[getFriend()._id];
-	}
+	pieceColour: getPieceColour
 });
 
 // ------ Stacked Piece ------
 
 Template.stackedPiece.helpers({
-	stackedPieceColour: Template.piece.pieceColour,
+	stackedPieceColour: getPieceColour,
 	getCount: function(pieces) {
 		if (pieces.length === 1) {
 			return '';
